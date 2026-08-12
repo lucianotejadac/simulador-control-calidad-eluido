@@ -8,7 +8,7 @@ El usuario ejecuta las cinco pruebas del protocolo — transparencia, pH, pureza
 
 ## Acceso en línea
 
-👉 https://lucianotejadac.github.io/simulador-control-calidad-eluido/simulador-control-calidad.html
+👉 https://lucianotejadac.github.io/simulador-control-calidad-eluido/
 
 No requiere instalación. Basta un navegador moderno con soporte de SVG y eventos de puntero.
 
