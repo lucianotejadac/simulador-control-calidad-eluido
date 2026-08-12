@@ -1,0 +1,1546 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <!--
+    ═══════════════════════════════════════════════════════════════════════════
+    CONTROL DE CALIDAD DEL ELUIDO DE ⁹⁹ᵐTc · simulador didáctico
+    Transparencia · pH · Pureza radionucleídica · química · radioquímica
+
+    © 2026 Luciano Tejada Castro. Todos los derechos reservados.
+    Contacto: lucianotejada@uchile.cl
+
+    Obra protegida por la Ley N° 17.336 sobre Propiedad Intelectual de Chile.
+    La protección se adquiere por el solo hecho de la creación de la obra
+    (art. 1). Se reservan los derechos patrimoniales de reproducción,
+    distribución, comunicación pública, adaptación y transformación
+    (arts. 17 y 18). Los derechos morales de paternidad e integridad de la
+    obra son inalienables e irrenunciables (art. 14).
+
+    Cualquier reproducción, adaptación o comunicación pública distinta del uso
+    personal requiere autorización escrita del autor.
+    ═══════════════════════════════════════════════════════════════════════════
+  -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="author" content="Luciano Tejada Castro">
+  <meta name="copyright" content="© 2026 Luciano Tejada Castro. Todos los derechos reservados. Ley N° 17.336 (Chile).">
+  <meta name="description" content="Simulador didáctico del control de calidad del eluido de tecnecio-99m: transparencia, pH, pureza radionucleídica, pureza química y pureza radioquímica.">
+  <title>Control de calidad del eluido · Simulador</title>
+  <style>
+    :root {
+      --bg: #071117;
+      --panel: rgba(15, 30, 38, .88);
+      --panel-2: #10242d;
+      --line: rgba(183, 224, 236, .13);
+      --text: #edf8fa;
+      --muted: #8eacb5;
+      --mo: #9d65ff;
+      --tcm: #00f0d8;
+      --tc: #d1e0e4;
+      --rad: #f2a84b;
+      --good: #66d99a;
+      --mal: #ff7a6b;
+      --liquido: #7db8c9;
+      --liquido-oscuro: #4f93a8;
+      --septo: #8a2f24;
+      --lcd: #7fe08a;
+      --radius: 20px;
+      --shadow: 0 24px 70px rgba(0, 0, 0, .26);
+    }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html { min-width: 320px; background: var(--bg); }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% -5%, rgba(40, 123, 142, .20), transparent 32rem),
+        radial-gradient(circle at 95% 20%, rgba(106, 72, 199, .12), transparent 28rem),
+        var(--bg);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-variant-numeric: tabular-nums;
+    }
+    button, input { font: inherit; }
+    button { color: inherit; }
+
+    .shell { width: min(1480px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 38px; }
+    .topbar { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; margin-bottom: 18px; }
+    .eyebrow { color: var(--tcm); text-transform: uppercase; letter-spacing: .15em; font-size: 11px; font-weight: 800; }
+    h1 { font-size: clamp(24px, 3vw, 40px); line-height: 1.06; letter-spacing: -.035em; margin: 7px 0 8px; }
+    .lead { margin: 0; color: var(--muted); max-width: 76ch; font-size: 14px; }
+    .education-badge { flex: none; padding: 8px 11px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-size: 11px; background: rgba(255,255,255,.025); }
+
+    .lote-banner { display: flex; flex-wrap: wrap; gap: 8px 22px; align-items: center; padding: 12px 16px; border: 1px solid var(--line); border-radius: 14px; background: rgba(9,23,29,.7); margin: 0 0 16px; font-size: 11px; color: var(--muted); }
+    .lote-banner div b { display: block; color: var(--text); font-size: 13px; margin-top: 1px; }
+    .lote-banner .sep { flex: 1; }
+    .lote-banner .btn { flex: none; }
+
+    .main-tabs { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 0 16px; padding: 4px; border: 1px solid var(--line); border-radius: 13px; background: rgba(5,17,22,.72); }
+    .main-tabs button { flex: 1; min-width: 118px; padding: 9px 10px; border: 0; border-radius: 9px; background: transparent; color: var(--muted); cursor: pointer; font-size: 10.5px; font-weight: 800; letter-spacing: .04em; white-space: nowrap; }
+    .main-tabs button.active { background: #1a3945; color: var(--text); box-shadow: 0 3px 10px rgba(0,0,0,.25); }
+    .main-tabs button .tick { color: var(--good); margin-left: 4px; }
+    .main-tabs button .tick.mal { color: var(--mal); }
+
+    .layout { display: grid; grid-template-columns: minmax(500px, 1.16fr) minmax(360px, .84fr); gap: 18px; align-items: start; }
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); backdrop-filter: blur(16px); overflow: hidden; }
+    .card-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 15px 18px; border-bottom: 1px solid var(--line); }
+    .card-head h2 { margin: 0; font-size: 14px; letter-spacing: -.01em; }
+    .card-head p { margin: 3px 0 0; font-size: 11px; color: var(--muted); }
+    .right-col { display: grid; gap: 16px; align-content: start; }
+
+    .stage { position: relative; background: radial-gradient(circle at 50% 30%, rgba(86,184,193,.08), transparent 46%), linear-gradient(#0a1920, #08141a); }
+    .stage svg { width: 100%; height: 500px; display: block; }
+    .stage svg text { user-select: none; }
+    .controls-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; padding: 12px 16px; border-top: 1px solid var(--line); }
+    .nota { min-height: 15px; margin-left: auto; font-size: 10px; color: var(--muted); text-align: right; max-width: 46ch; }
+    .nota.activa { color: var(--tcm); }
+    .nota.aviso { color: var(--rad); }
+
+    .btn { border: 1px solid var(--line); background: #10232c; border-radius: 10px; padding: 9px 13px; cursor: pointer; font-size: 11px; color: var(--text); font-weight: 700; transition: .15s ease; }
+    .btn:hover:not(:disabled) { border-color: rgba(66,231,218,.4); transform: translateY(-1px); }
+    .btn:disabled { opacity: .32; cursor: default; }
+    .btn.primario { border-color: rgba(66,231,218,.55); background: linear-gradient(135deg, #17645e, #123f4a); letter-spacing: .05em; }
+    .btn.activo { border-color: rgba(66,231,218,.6); background: #14424a; color: #eafffb; }
+
+    .pasos { list-style: none; margin: 0; padding: 13px 16px; display: grid; gap: 8px; font-size: 11px; color: var(--muted); }
+    .pasos li { display: flex; gap: 9px; align-items: flex-start; line-height: 1.45; }
+    .pasos li::before { content: "○"; flex: none; }
+    .pasos li.hecho { color: #bfe9d2; }
+    .pasos li.hecho::before { content: "●"; color: var(--good); }
+
+    .lecturas { padding: 12px 16px; display: grid; gap: 8px; font-size: 11px; }
+    .lect-row { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; border: 1px solid var(--line); border-radius: 9px; padding: 8px 11px; background: rgba(5,17,22,.5); color: var(--muted); }
+    .lect-row b { color: var(--text); font-size: 13px; }
+    .lect-row b.pend { color: var(--muted); font-weight: 500; font-size: 11px; }
+    .lect-row.limite { border-color: rgba(242,168,75,.35); }
+    .lect-row.res b { font-size: 15px; }
+
+    .veredicto { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 13px 16px; }
+    .veredicto button { padding: 11px 10px; border-radius: 11px; cursor: pointer; font-size: 11px; font-weight: 800; letter-spacing: .03em; line-height: 1.35; transition: .15s ease; }
+    .veredicto button:disabled { opacity: .3; cursor: default; }
+    .veredicto .v-ok { border: 1px solid rgba(102,217,154,.5); color: #8ee7b4; background: rgba(102,217,154,.07); }
+    .veredicto .v-ok:hover:not(:disabled) { background: rgba(102,217,154,.16); }
+    .veredicto .v-mal { border: 1px solid rgba(255,122,107,.5); color: #ffa294; background: rgba(255,122,107,.07); }
+    .veredicto .v-mal:hover:not(:disabled) { background: rgba(255,122,107,.16); }
+    .feedback { margin: 0 16px 15px; padding: 10px 12px; border-radius: 10px; font-size: 11px; line-height: 1.55; display: none; }
+    .feedback.ok { display: block; border: 1px solid rgba(102,217,154,.4); background: rgba(102,217,154,.08); color: #b8f0cf; }
+    .feedback.mal { display: block; border: 1px solid rgba(255,122,107,.45); background: rgba(255,122,107,.08); color: #ffc9c0; }
+
+    .ph-chart { display: grid; grid-template-columns: repeat(9, 1fr); gap: 5px; padding: 13px 16px 15px; }
+    .ph-chart button { height: 46px; border-radius: 8px; border: 2px solid rgba(255,255,255,.08); cursor: pointer; font-size: 10px; font-weight: 800; color: rgba(10,15,18,.78); display: grid; place-items: end center; padding-bottom: 4px; }
+    .ph-chart button:disabled { opacity: .35; cursor: default; }
+    .ph-chart button.sel { border-color: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,.25); }
+    .ph-chart-nota { padding: 0 16px 13px; color: var(--muted); font-size: 10px; }
+
+    details { background: rgba(9,23,29,.65); border: 1px solid var(--line); border-radius: 15px; }
+    summary { cursor: pointer; list-style: none; padding: 13px 16px; font-size: 12px; font-weight: 700; }
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: "+"; float: right; color: var(--muted); font-size: 17px; line-height: 14px; }
+    details[open] summary::after { content: "−"; }
+    .details-body { border-top: 1px solid var(--line); padding: 13px 16px 15px; color: var(--muted); font-size: 10.5px; line-height: 1.6; }
+    .details-body p { margin: 0 0 8px; }
+    .details-body p:last-child { margin-bottom: 0; }
+    .formula { padding: 8px 10px; background: #07151b; border-radius: 8px; color: #bfd3d8; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; overflow-x: auto; white-space: nowrap; }
+    details.desplegable { background: transparent; border: 0; border-radius: 0; border-top: 1px solid var(--line); }
+    details.desplegable summary { padding: 11px 16px; font-size: 11px; color: var(--muted); }
+    details.desplegable summary::after { font-size: 15px; }
+    details.desplegable .details-body { border-top: 0; padding: 2px 16px 13px; }
+
+    .informe-wrap { padding: 6px 16px 16px; overflow-x: auto; }
+    .informe-tabla { width: 100%; border-collapse: collapse; font-size: 11px; min-width: 560px; }
+    .informe-tabla th { text-align: left; color: var(--muted); font-size: 9.5px; text-transform: uppercase; letter-spacing: .08em; padding: 9px 10px; border-bottom: 1px solid var(--line); }
+    .informe-tabla td { padding: 9px 10px; border-bottom: 1px solid rgba(183,224,236,.07); color: var(--muted); }
+    .informe-tabla td b { color: var(--text); font-weight: 700; }
+    .informe-tabla .ok { color: var(--good); font-weight: 800; }
+    .informe-tabla .mal { color: var(--mal); font-weight: 800; }
+    .informe-resumen { margin: 4px 16px 16px; padding: 12px 14px; border-radius: 12px; font-size: 12px; line-height: 1.5; border: 1px solid var(--line); background: rgba(5,17,22,.5); color: var(--muted); }
+    .informe-resumen.apto { border-color: rgba(102,217,154,.45); background: rgba(102,217,154,.07); color: #b8f0cf; }
+    .informe-resumen.noapto { border-color: rgba(255,122,107,.5); background: rgba(255,122,107,.07); color: #ffc9c0; }
+
+    .lcd-css { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .stage svg { height: 440px; }
+    }
+    @media (max-width: 600px) {
+      .shell { width: min(100% - 18px, 1480px); padding-top: 16px; }
+      .education-badge { display: none; }
+      .main-tabs button { min-width: 100px; }
+      .ph-chart { grid-template-columns: repeat(5, 1fr); }
+      .stage svg { height: 380px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">Medicina nuclear · Simulación didáctica</div>
+        <h1>Control de calidad del eluido</h1>
+        <p class="lead">Realiza las cinco pruebas al eluido de <sup>99m</sup>TcO₄⁻ recién extraído del generador: transparencia, pH, pureza radionucleídica, pureza química y pureza radioquímica. Emite un veredicto por prueba y compáralo con el estado real del lote.</p>
+      </div>
+      <div class="education-badge">Modelo educativo · no apto para decisiones clínicas</div>
+    </header>
+
+    <div class="lote-banner">
+      <div>Lote en control<b id="loteId">—</b></div>
+      <div>Actividad calibrada <sup>99m</sup>Tc<b id="loteAct">—</b></div>
+      <div>Volumen del eluido<b id="loteVol">—</b></div>
+      <div>Veredictos acertados<b id="loteAvance">0 / 0</b></div>
+      <div class="sep"></div>
+      <button class="btn" id="nuevoLoteBtn" type="button">⟳ Nuevo lote</button>
+    </div>
+
+    <nav class="main-tabs" aria-label="Pruebas de control de calidad" id="tabs">
+      <button data-vista="aspecto" class="active" type="button">1 · TRANSPARENCIA<span class="tick" id="tab_aspecto"></span></button>
+      <button data-vista="ph" type="button">2 · pH<span class="tick" id="tab_ph"></span></button>
+      <button data-vista="radionucleidica" type="button">3 · P. RADIONUCLEÍDICA<span class="tick" id="tab_radionucleidica"></span></button>
+      <button data-vista="quimica" type="button">4 · P. QUÍMICA<span class="tick" id="tab_quimica"></span></button>
+      <button data-vista="radioquimica" type="button">5 · P. RADIOQUÍMICA<span class="tick" id="tab_radioquimica"></span></button>
+      <button data-vista="informe" type="button">INFORME<span class="tick" id="tab_informe"></span></button>
+    </nav>
+
+    <!-- Definiciones compartidas por todas las escenas (los id de SVG son globales al documento) -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <defs>
+        <linearGradient id="vidrio" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0"   stop-color="rgba(180,190,196,.55)"/>
+          <stop offset=".18" stop-color="rgba(245,250,252,.5)"/>
+          <stop offset=".5"  stop-color="rgba(225,233,237,.28)"/>
+          <stop offset=".85" stop-color="rgba(200,208,214,.45)"/>
+          <stop offset="1"   stop-color="rgba(150,158,165,.6)"/>
+        </linearGradient>
+        <linearGradient id="aluminio" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#8d949c"/><stop offset=".3" stop-color="#f2f4f6"/>
+          <stop offset=".65" stop-color="#c9ced4"/><stop offset="1" stop-color="#5c636b"/>
+        </linearGradient>
+        <linearGradient id="liquidoGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="var(--liquido)"/>
+          <stop offset="1" stop-color="var(--liquido-oscuro)"/>
+        </linearGradient>
+        <linearGradient id="barril" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="rgba(200,208,214,.7)"/><stop offset=".2" stop-color="rgba(248,251,252,.6)"/>
+          <stop offset=".55" stop-color="rgba(230,237,240,.35)"/><stop offset="1" stop-color="rgba(170,178,185,.7)"/>
+        </linearGradient>
+        <linearGradient id="plomoCC" x1="0" x2="1">
+          <stop offset="0" stop-color="#27363d"/><stop offset=".45" stop-color="#53636a"/><stop offset="1" stop-color="#243238"/>
+        </linearGradient>
+        <linearGradient id="plomoCCv" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#4a5a61"/><stop offset=".5" stop-color="#2c3b42"/><stop offset="1" stop-color="#223036"/>
+        </linearGradient>
+        <radialGradient id="brilloLampara" cx="50%" cy="50%" r="60%">
+          <stop offset="0" stop-color="rgba(255,250,235,.95)"/>
+          <stop offset=".7" stop-color="rgba(255,246,220,.75)"/>
+          <stop offset="1" stop-color="rgba(255,242,205,.35)"/>
+        </radialGradient>
+        <radialGradient id="manchaTc" cx="50%" cy="50%" r="50%">
+          <stop offset="0" stop-color="rgba(0,240,216,.95)"/>
+          <stop offset=".55" stop-color="rgba(0,240,216,.45)"/>
+          <stop offset="1" stop-color="rgba(0,240,216,0)"/>
+        </radialGradient>
+        <filter id="sombraCC" x="-30%" y="-20%" width="160%" height="160%">
+          <feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#000" flood-opacity=".4"/>
+        </filter>
+        <clipPath id="clipIntVialCC">
+          <rect x="411" y="245" width="78" height="170" rx="10"/>
+          <rect x="436" y="196" width="28" height="52"/>
+        </clipPath>
+      </defs>
+    </svg>
+
+    <!-- ══════════════ 1 · TRANSPARENCIA ══════════════ -->
+    <div class="layout vista" id="vista_aspecto">
+      <section class="card">
+        <div class="card-head">
+          <div><h2>Inspección visual al trasluz</h2><p>Sujeta el vial con la pinza, agítalo con suavidad y obsérvalo frente a la caja de luz</p></div>
+        </div>
+        <div class="stage">
+          <svg id="t_svg" viewBox="0 0 720 520" role="img" aria-label="Escena de inspección visual del vial frente a una caja de luz">
+            <rect width="720" height="520" fill="transparent"/>
+            <!-- Caja de luz -->
+            <g filter="url(#sombraCC)">
+              <rect x="52" y="96" width="256" height="330" rx="14" fill="#1a262c" stroke="#5b6f77" stroke-width="3"/>
+              <rect id="t_pantalla" x="68" y="112" width="224" height="298" rx="8" fill="#141d22" stroke="#3d5058"/>
+              <rect id="t_brillo" x="68" y="112" width="224" height="298" rx="8" fill="url(#brilloLampara)" opacity="0"/>
+              <circle id="t_piloto" cx="292" cy="418" r="4" fill="#2a343a"/>
+            </g>
+            <text x="76" y="450" fill="#899fa6" font-size="10" font-family="Inter,Segoe UI,sans-serif">Caja de luz · negatoscopio</text>
+            <!-- Mesa -->
+            <rect x="0" y="470" width="720" height="50" fill="#0c1d24"/>
+            <line x1="0" y1="470" x2="720" y2="470" stroke="#27424d" stroke-width="2"/>
+            <text x="520" y="492" fill="#5f7a83" font-size="9" font-family="Inter,Segoe UI,sans-serif">Trabaja detrás del blindaje · norma de radioprotección</text>
+            <!-- Pinza + vial (arrastrable) -->
+            <g id="t_grupo" style="cursor:grab">
+              <g stroke="#c3cdd3" stroke-width="6" stroke-linecap="round" fill="none">
+                <path d="M -5 -262 L -16 -138"/>
+                <path d="M 5 -262 L 16 -138"/>
+              </g>
+              <rect x="-14" y="-278" width="28" height="22" rx="8" fill="#8d99a1" stroke="#5c666d" stroke-width="1.5"/>
+              <rect x="-21" y="-142" width="10" height="26" rx="3" fill="#aab6bd" stroke="#5c666d"/>
+              <rect x="11" y="-142" width="10" height="26" rx="3" fill="#aab6bd" stroke="#5c666d"/>
+              <g id="t_vialArt" transform="translate(-450 -290)"></g>
+            </g>
+          </svg>
+        </div>
+        <div class="controls-bar">
+          <button class="btn" id="t_lampBtn" type="button">💡 Encender la caja de luz</button>
+          <button class="btn" id="t_agitarBtn" type="button">↻ Agitar con suavidad</button>
+          <div class="nota" id="t_nota">Arrastra el vial frente a la pantalla iluminada.</div>
+        </div>
+      </section>
+      <div class="right-col">
+        <section class="card">
+          <div class="card-head"><div><h2>Procedimiento</h2><p>Se completa al realizar cada acción</p></div></div>
+          <ul class="pasos">
+            <li id="t_paso1">Encender la caja de luz.</li>
+            <li id="t_paso2">Agitar el vial con suavidad para resuspender posibles partículas.</li>
+            <li id="t_paso3">Observar el eluido al trasluz, frente a la pantalla.</li>
+          </ul>
+        </section>
+        <section class="card">
+          <div class="card-head"><div><h2>Veredicto · aspecto</h2><p>Decide el destino del eluido según lo observado</p></div></div>
+          <details class="desplegable">
+            <summary>Ver criterio de aceptación</summary>
+            <div class="details-body"><p>El eluido debe ser una solución límpida, incolora y sin partículas visibles. Cualquier partícula o coloración obliga a desecharlo.</p></div>
+          </details>
+          <div class="veredicto">
+            <button class="v-ok" id="t_vOk" type="button" disabled>CONFORME<br><small>apruebo y libero el eluido</small></button>
+            <button class="v-mal" id="t_vMal" type="button" disabled>NO CONFORME<br><small>rechazo y desecho el eluido</small></button>
+          </div>
+          <div class="feedback" id="t_feedback"></div>
+        </section>
+        <details>
+          <summary>Fundamento de la prueba</summary>
+          <div class="details-body">
+            <p>Antes de la administración debe comprobarse que el eluido no posea partículas y sea transparente. La presencia de partículas (por ejemplo, finos de alúmina arrastrados de la columna) o de coloración obliga a descartar el eluido.</p>
+            <p>Todo el proceso se realiza siguiendo normas de radioprotección: pinzas largas, blindaje y el menor tiempo de exposición posible.</p>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- ══════════════ 2 · pH ══════════════ -->
+    <div class="layout vista" id="vista_ph" hidden>
+      <section class="card">
+        <div class="card-head">
+          <div><h2>Determinación del pH</h2><p>Extrae ≈ 0,1 mL con la jeringa de 1 mL y deja caer gotas sobre la tira reactiva</p></div>
+        </div>
+        <div class="stage">
+          <svg id="p_svg" viewBox="0 0 720 520" role="img" aria-label="Escena de medición de pH con jeringa y tira reactiva">
+            <rect width="720" height="520" fill="transparent"/>
+            <!-- Mesa + superficie absorbente -->
+            <rect x="0" y="470" width="720" height="50" fill="#0c1d24"/>
+            <line x1="0" y1="470" x2="720" y2="470" stroke="#27424d" stroke-width="2"/>
+            <g>
+              <rect x="60" y="458" width="600" height="14" rx="4" fill="#b9d4de" opacity=".85"/>
+              <rect x="60" y="458" width="600" height="5" rx="2.5" fill="#e6f2f6" opacity=".9"/>
+              <text x="486" y="452" fill="#7fa3ae" font-size="9" font-family="Inter,Segoe UI,sans-serif">superficie absorbente descartable</text>
+            </g>
+            <!-- Vial del eluido -->
+            <g id="p_vialG" transform="translate(-300 49)"></g>
+            <!-- Soporte con pinza y tira reactiva -->
+            <g>
+              <rect x="352" y="240" width="10" height="230" rx="3" fill="#5c6b72"/>
+              <rect x="330" y="462" width="120" height="8" rx="3" fill="#5c6b72"/>
+              <rect x="356" y="252" width="52" height="10" rx="4" fill="#8d99a1" stroke="#5c666d"/>
+              <g stroke="#c3cdd3" stroke-width="4" stroke-linecap="round" fill="none">
+                <path d="M 396 260 L 388 296"/><path d="M 404 260 L 412 296"/>
+              </g>
+              <g id="p_tira">
+                <rect x="386" y="294" width="28" height="126" rx="2" fill="#f4f1ea" stroke="#c9c4b8" stroke-width="1"/>
+                <rect id="p_tiraMojada" x="386" y="294" width="28" height="0" fill="#ded9cc" opacity=".7"/>
+                <rect id="p_tiraColor" x="388" y="296" width="24" height="122" rx="2" fill="#f4f1ea" opacity="0"/>
+              </g>
+              <text x="380" y="438" fill="#899fa6" font-size="9.5" font-family="Inter,Segoe UI,sans-serif">tira de pH 2,0 – 10,0</text>
+            </g>
+            <!-- Gota animada -->
+            <circle id="p_gota" r="4.5" fill="url(#liquidoGrad)" stroke="rgba(55,115,135,.75)" stroke-width=".6" opacity="0"/>
+            <!-- Jeringa de 1 mL (arrastrable) -->
+            <g id="p_jer" style="cursor:grab"></g>
+          </svg>
+        </div>
+        <div class="controls-bar">
+          <button class="btn primario" id="p_gotaBtn" type="button" disabled>Soltar una gota</button>
+          <div class="nota" id="p_nota">Lleva la jeringa hasta el septo del vial para cargar la muestra.</div>
+        </div>
+      </section>
+      <div class="right-col">
+        <section class="card">
+          <div class="card-head"><div><h2>Procedimiento</h2><p>Según pauta: jeringa de 1 mL y papel reactivo</p></div></div>
+          <ul class="pasos">
+            <li id="p_paso1">Insertar la jeringa de 1 mL a través del septo.</li>
+            <li id="p_paso2">Extraer ≈ 0,1 mL de pertecnectato de sodio (tira del émbolo).</li>
+            <li id="p_paso3">Dejar caer gotas sobre la tira hasta humedecerla por completo.</li>
+            <li id="p_paso4">Comparar la coloración con el patrón y elegir el pH.</li>
+          </ul>
+          <div class="lecturas">
+            <div class="lect-row"><span>Volumen en la jeringa</span><b id="p_volTxt">0,00 mL</b></div>
+          </div>
+        </section>
+        <section class="card">
+          <div class="card-head"><div><h2>Patrón colorimétrico</h2><p>Pulsa el color que más se parezca a la tira</p></div></div>
+          <div class="ph-chart" id="p_chart"></div>
+          <div class="ph-chart-nota" id="p_lecturaTxt">La escala se habilita cuando la tira desarrolle color.</div>
+        </section>
+        <section class="card">
+          <div class="card-head"><div><h2>Veredicto · pH</h2><p>Con tu lectura de la tira, decide el destino del eluido</p></div></div>
+          <details class="desplegable">
+            <summary>Ver criterio de aceptación</summary>
+            <div class="details-body"><p>El pH del eluido debe estar dentro del rango de aceptación de 4,0 a 8,0. Fuera de ese rango, el eluido se desecha.</p></div>
+          </details>
+          <div class="veredicto">
+            <button class="v-ok" id="p_vOk" type="button" disabled>CONFORME<br><small>apruebo y libero el eluido</small></button>
+            <button class="v-mal" id="p_vMal" type="button" disabled>NO CONFORME<br><small>rechazo y desecho el eluido</small></button>
+          </div>
+          <div class="feedback" id="p_feedback"></div>
+        </section>
+        <details>
+          <summary>Fundamento de la prueba</summary>
+          <div class="details-body">
+            <p>El pH del eluido se mide con papel reactivo de rango 2,0 – 10,0. No se utiliza pHmetro por la posible contaminación radiactiva que quedaría en el electrodo.</p>
+            <p>Se coloca una superficie absorbente descartable, se extraen ≈ 0,1 mL del vial con jeringa de 1 mL y se deja caer gota a gota sobre la tira, sostenida con una pinza, hasta humedecerla totalmente. La coloración se compara con el patrón de las tiras.</p>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- ══════════════ 3 · PUREZA RADIONUCLEÍDICA ══════════════ -->
+    <div class="layout vista" id="vista_radionucleidica" hidden>
+      <section class="card">
+        <div class="card-head">
+          <div><h2>Activímetro y canister de plomo (6 mm)</h2><p>Mide A (vial blindado, canal ⁹⁹Mo) y B (vial sin blindaje, canal ⁹⁹ᵐTc)</p></div>
+        </div>
+        <div class="stage">
+          <svg id="r_svg" viewBox="0 0 720 520" role="img" aria-label="Escena con activímetro, canister de plomo y vial">
+            <rect width="720" height="520" fill="transparent"/>
+            <rect x="0" y="470" width="720" height="50" fill="#0c1d24"/>
+            <line x1="0" y1="470" x2="720" y2="470" stroke="#27424d" stroke-width="2"/>
+            <!-- Activímetro (corte) -->
+            <g filter="url(#sombraCC)">
+              <rect x="450" y="150" width="246" height="320" rx="12" fill="url(#plomoCC)" stroke="#73868d" stroke-width="3"/>
+              <rect x="466" y="196" width="214" height="150" rx="8" fill="#dce8e9" stroke="#9bb2b7" stroke-width="2"/>
+              <rect id="r_pozo" x="524" y="170" width="98" height="166" rx="7" fill="#17262c" stroke="#54676f" stroke-width="2"/>
+              <text x="474" y="215" fill="#24373d" font-size="10" font-weight="700" font-family="Inter,Segoe UI,sans-serif">Pozo</text>
+              <text x="632" y="215" fill="#24373d" font-size="10" font-family="Inter,Segoe UI,sans-serif">corte</text>
+              <rect x="470" y="366" width="206" height="64" rx="8" fill="#0e1a12" stroke="#3c5a44" stroke-width="2"/>
+              <text id="r_lcd" x="662" y="398" text-anchor="end" fill="var(--lcd)" font-size="24" font-weight="600" class="lcd-css" style="text-shadow:0 0 7px rgba(110,225,135,.55)">0.0</text>
+              <text id="r_lcdUnidad" x="662" y="420" text-anchor="end" fill="#57a468" font-size="11" class="lcd-css">mCi · canal Tc-99m</text>
+              <circle id="r_estable" cx="484" cy="416" r="4" fill="#2a343a"/>
+              <text x="474" y="452" fill="#899fa6" font-size="10" font-family="Inter,Segoe UI,sans-serif">Activímetro · cámara de ionización</text>
+            </g>
+            <!-- Canister de plomo (arrastrable) -->
+            <g id="r_can" style="cursor:grab">
+              <rect x="-44" y="-118" width="88" height="118" rx="9" fill="url(#plomoCC)" stroke="#73868d" stroke-width="2.5"/>
+              <rect x="-30" y="-104" width="60" height="98" rx="6" fill="#1d2b31"/>
+              <g id="r_canVial" opacity="0">
+                <rect x="-22" y="-96" width="44" height="84" rx="6" fill="url(#vidrio)" stroke="#84a2ab"/>
+                <rect id="r_canLiq" x="-19" y="-60" width="38" height="45" fill="url(#liquidoGrad)" opacity=".85"/>
+              </g>
+              <g id="r_canTapa">
+                <rect x="-50" y="-140" width="100" height="26" rx="7" fill="url(#plomoCC)" stroke="#73868d" stroke-width="2.5"/>
+                <rect x="-12" y="-150" width="24" height="12" rx="4" fill="#53636a" stroke="#73868d"/>
+              </g>
+              <text x="-40" y="18" fill="#899fa6" font-size="9.5" font-family="Inter,Segoe UI,sans-serif">canister Pb 6 mm</text>
+            </g>
+            <!-- Vial (arrastrable) -->
+            <g id="r_vial" style="cursor:grab"><g id="r_vialArt" transform="translate(-450 -421)"></g></g>
+          </svg>
+        </div>
+        <div class="controls-bar">
+          <button class="btn" id="r_canalTc" type="button">Canal ⁹⁹ᵐTc</button>
+          <button class="btn" id="r_canalMo" type="button">Canal ⁹⁹Mo</button>
+          <button class="btn" id="r_tapaBtn" type="button">Destapar canister</button>
+          <button class="btn primario" id="r_regA" type="button" disabled>Registrar A (blindado · Mo)</button>
+          <button class="btn primario" id="r_regB" type="button" disabled>Registrar B (sin blindaje · Tc)</button>
+          <div class="nota" id="r_nota">Guarda el vial en el canister destapado, tápalo y llévalo al pozo.</div>
+        </div>
+      </section>
+      <div class="right-col">
+        <section class="card">
+          <div class="card-head"><div><h2>Procedimiento</h2><p>Método de atenuación con blindaje de Pb de 6 mm</p></div></div>
+          <ul class="pasos">
+            <li id="r_paso1">Introducir el vial en el canister de plomo y taparlo.</li>
+            <li id="r_paso2">Medir en el pozo con el canal ⁹⁹Mo → lectura A.</li>
+            <li id="r_paso3">Medir el vial solo (sin blindaje) con el canal ⁹⁹ᵐTc → lectura B.</li>
+            <li id="r_paso4">Calcular la razón ⁹⁹Mo/⁹⁹ᵐTc y compararla con el límite de aceptación.</li>
+          </ul>
+        </section>
+        <section class="card">
+          <div class="card-head"><div><h2>Lecturas del activímetro</h2><p>Registra A y B e intenta calcular la razón antes de abrir el desplegable</p></div></div>
+          <div class="lecturas">
+            <div class="lect-row"><span>A · eluido blindado, condiciones ⁹⁹Mo</span><b id="r_valA" class="pend">sin registrar</b></div>
+            <div class="lect-row"><span>B · eluido sin blindaje, condiciones ⁹⁹ᵐTc</span><b id="r_valB" class="pend">sin registrar</b></div>
+          </div>
+          <details class="desplegable">
+            <summary>Ver cálculo y criterio de aceptación</summary>
+            <div class="details-body">
+              <p class="formula">⁹⁹Mo/⁹⁹ᵐTc = (A × 2) / B</p>
+              <div class="lecturas" style="padding:10px 0 0">
+                <div class="lect-row res"><span>Razón ⁹⁹Mo/⁹⁹ᵐTc</span><b id="r_valR" class="pend">—</b></div>
+                <div class="lect-row limite"><span>Límite de aceptación</span><b>≤ 0,15 µCi / mCi</b></div>
+              </div>
+            </div>
+          </details>
+        </section>
+        <section class="card">
+          <div class="card-head"><div><h2>Veredicto · pureza radionucleídica</h2><p>Decide con tus lecturas y tu propio cálculo</p></div></div>
+          <details class="desplegable">
+            <summary>Ver criterio de aceptación</summary>
+            <div class="details-body"><p>La razón ⁹⁹Mo/⁹⁹ᵐTc, calculada como (A × 2) / B, no debe superar 0,15 µCi de ⁹⁹Mo por mCi de ⁹⁹ᵐTc. Si la supera, el eluido se desecha.</p></div>
+          </details>
+          <div class="veredicto">
+            <button class="v-ok" id="r_vOk" type="button" disabled>CONFORME<br><small>apruebo y libero el eluido</small></button>
+            <button class="v-mal" id="r_vMal" type="button" disabled>NO CONFORME<br><small>rechazo y desecho el eluido</small></button>
+          </div>
+          <div class="feedback" id="r_feedback"></div>
+        </section>
+        <details>
+          <summary>Fundamento de la prueba</summary>
+          <div class="details-body">
+            <p>El blindaje de Pb de 6 mm atenúa más del 99 % de los fotones de 140 keV del <sup>99m</sup>Tc, mientras que los fotones de 740 y 780 keV del <sup>99</sup>Mo solo se atenúan un 50 %. Midiendo el vial completo blindado en condiciones de <sup>99</sup>Mo (A) y sin blindaje en condiciones de <sup>99m</sup>Tc (B):</p>
+            <p class="formula"><sup>99</sup>Mo/<sup>99m</sup>Tc = (A × 2) / B &nbsp;·&nbsp; límite: 0,15 µCi de <sup>99</sup>Mo por mCi de <sup>99m</sup>Tc</p>
+            <p>El factor × 2 corrige el 50 % de atenuación del <sup>99</sup>Mo dentro del canister.</p>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- ══════════════ 4 · PUREZA QUÍMICA ══════════════ -->
+    <div class="layout vista" id="vista_quimica" hidden>
+      <section class="card">
+        <div class="card-head">
+          <div><h2>Ensayo colorimétrico de Al³⁺</h2><p>Deposita una gota del patrón y una gota del eluido sobre la tira y compara la intensidad</p></div>
+        </div>
+        <div class="stage">
+          <svg id="q_svg" viewBox="0 0 720 520" role="img" aria-label="Escena del ensayo colorimétrico de aluminio">
+            <rect width="720" height="520" fill="transparent"/>
+            <rect x="0" y="470" width="720" height="50" fill="#0c1d24"/>
+            <line x1="0" y1="470" x2="720" y2="470" stroke="#27424d" stroke-width="2"/>
+            <rect x="90" y="452" width="540" height="20" rx="5" fill="#c8b98a" opacity=".55"/>
+            <!-- Tira indicadora -->
+            <g filter="url(#sombraCC)">
+              <rect x="240" y="296" width="240" height="130" rx="10" fill="#f4f1ea" stroke="#c9c4b8" stroke-width="1.5"/>
+              <circle id="q_zonaPatron" cx="310" cy="348" r="28" fill="#efe9dd" stroke="#cfc7b6" stroke-width="1.5"/>
+              <circle id="q_manchaPatron" cx="310" cy="348" r="24" fill="#d54878" opacity="0"/>
+              <circle id="q_zonaEluido" cx="410" cy="348" r="28" fill="#efe9dd" stroke="#cfc7b6" stroke-width="1.5"/>
+              <circle id="q_manchaEluido" cx="410" cy="348" r="24" fill="#d54878" opacity="0"/>
+              <text x="285" y="402" fill="#6b6960" font-size="10" font-weight="700" font-family="Inter,Segoe UI,sans-serif">PATRÓN</text>
+              <text x="388" y="402" fill="#6b6960" font-size="10" font-weight="700" font-family="Inter,Segoe UI,sans-serif">ELUIDO</text>
+              <text x="252" y="316" fill="#8a867c" font-size="9" font-family="Inter,Segoe UI,sans-serif">tira con agente complejante de Al</text>
+            </g>
+            <!-- Gota animada -->
+            <circle id="q_gota" r="4.5" fill="#e8f2f6" stroke="rgba(120,130,140,.6)" stroke-width=".6" opacity="0"/>
+            <!-- Frasco patrón (arrastrable) -->
+            <g id="q_frasco" style="cursor:grab">
+              <path d="M -22 -66 L 22 -66 L 22 26 Q 22 34 14 34 L -14 34 Q -22 34 -22 26 Z" fill="#e8e4dc" stroke="#a8a294" stroke-width="1.5"/>
+              <rect x="-10" y="-92" width="20" height="28" rx="4" fill="#f2f4f6" stroke="#8d949c" stroke-width="1.5"/>
+              <rect x="-18" y="-42" width="36" height="56" rx="3" fill="#fff" stroke="#c5beb0"/>
+              <text x="0" y="-20" text-anchor="middle" fill="#4a5560" font-size="9" font-weight="800" font-family="Inter,Segoe UI,sans-serif">ALUM</text>
+              <text x="0" y="-8" text-anchor="middle" fill="#7d8790" font-size="7.5" font-family="Inter,Segoe UI,sans-serif">patrón Al</text>
+              <text x="0" y="3" text-anchor="middle" fill="#7d8790" font-size="7.5" font-family="Inter,Segoe UI,sans-serif">10 µg/mL</text>
+            </g>
+            <!-- Jeringa con eluido (arrastrable) -->
+            <g id="q_jer" style="cursor:grab">
+              <rect x="-9" y="-70" width="18" height="86" rx="4" fill="#c23b2e" stroke="#7e2118" stroke-width="1.5"/>
+              <rect x="-14" y="-78" width="28" height="8" rx="3" fill="#d6dbdf" stroke="#7a828a"/>
+              <rect x="-3" y="-96" width="6" height="18" fill="#c2c7cc" stroke="#7a828a"/>
+              <line x1="0" y1="16" x2="0" y2="44" stroke="#9aa0a6" stroke-width="2.2"/>
+              <text x="-30" y="62" fill="#899fa6" font-size="9" font-family="Inter,Segoe UI,sans-serif">jeringa blindada</text>
+              <text x="-24" y="74" fill="#899fa6" font-size="9" font-family="Inter,Segoe UI,sans-serif">con eluido</text>
+            </g>
+          </svg>
+        </div>
+        <div class="controls-bar">
+          <div class="nota" id="q_nota">Acerca la boquilla del patrón a su zona y suéltalo encima para depositar la gota.</div>
+        </div>
+      </section>
+      <div class="right-col">
+        <section class="card">
+          <div class="card-head"><div><h2>Procedimiento</h2><p>Comparación frente a un patrón de concentración conocida</p></div></div>
+          <ul class="pasos">
+            <li id="q_paso1">Depositar una gota del patrón de Al (10 µg/mL) en su zona.</li>
+            <li id="q_paso2">Depositar una gota del eluido en la zona contigua.</li>
+            <li id="q_paso3">Esperar el desarrollo de color y comparar intensidades.</li>
+          </ul>
+        </section>
+        <section class="card">
+          <div class="card-head"><div><h2>Veredicto · pureza química</h2><p>Compara la intensidad de las dos manchas y decide</p></div></div>
+          <details class="desplegable">
+            <summary>Ver criterio de aceptación</summary>
+            <div class="details-body"><p>Si la intensidad de color del eluido supera la del patrón (10 µg/mL de Al), el contenido de Al³⁺ excede el límite y el eluido se desecha. Si es igual o menor, se acepta.</p></div>
+          </details>
+          <div class="veredicto">
+            <button class="v-ok" id="q_vOk" type="button" disabled>CONFORME<br><small>apruebo y libero el eluido</small></button>
+            <button class="v-mal" id="q_vMal" type="button" disabled>NO CONFORME<br><small>rechazo y desecho el eluido</small></button>
+          </div>
+          <div class="feedback" id="q_feedback"></div>
+        </section>
+        <details>
+          <summary>Fundamento de la prueba</summary>
+          <div class="details-body">
+            <p>El eluido puede contaminarse con iones Al³⁺ procedentes de la columna de alúmina (Al₂O₃) del generador. El Al³⁺ interfiere en la preparación de algunos radiofármacos (p. ej., coloides y fosfonatos).</p>
+            <p>Las tiras del kit contienen un agente complejante que desarrolla un color de intensidad proporcional al contenido de Al. Se compara con la tira del patrón (10 – 15 µg/mL): si la intensidad del eluido supera a la del estándar, el eluido se desecha.</p>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- ══════════════ 5 · PUREZA RADIOQUÍMICA ══════════════ -->
+    <div class="layout vista" id="vista_radioquimica" hidden>
+      <section class="card">
+        <div class="card-head">
+          <div><h2>Cromatografía en capa fina</h2><p>Siembra, desarrolla en solución salina, corta en Rf 0,5 y cuenta cada mitad</p></div>
+        </div>
+        <div class="stage">
+          <svg id="c_svg" viewBox="0 0 720 520" role="img" aria-label="Escena de cromatografía con tira, cubeta y contador de pozo">
+            <rect width="720" height="520" fill="transparent"/>
+            <rect x="0" y="470" width="720" height="50" fill="#0c1d24"/>
+            <line x1="0" y1="470" x2="720" y2="470" stroke="#27424d" stroke-width="2"/>
+            <!-- Soporte de la tira -->
+            <g>
+              <rect x="118" y="240" width="10" height="230" rx="3" fill="#5c6b72"/>
+              <rect x="96" y="462" width="120" height="8" rx="3" fill="#5c6b72"/>
+              <rect x="122" y="248" width="46" height="10" rx="4" fill="#8d99a1" stroke="#5c666d"/>
+              <text x="96" y="232" fill="#899fa6" font-size="9.5" font-family="Inter,Segoe UI,sans-serif">soporte de secado</text>
+            </g>
+            <!-- Cubeta de desarrollo -->
+            <g filter="url(#sombraCC)">
+              <path d="M 330 340 L 330 462 Q 330 470 338 470 L 422 470 Q 430 470 430 462 L 430 340" fill="rgba(228,240,246,.20)" stroke="rgba(150,170,182,.85)" stroke-width="2.5"/>
+              <rect id="c_salina" x="332" y="448" width="96" height="21" fill="url(#liquidoGrad)" opacity=".6"/>
+              <text x="332" y="332" fill="#899fa6" font-size="9.5" font-family="Inter,Segoe UI,sans-serif">cubeta · NaCl 0,9 %</text>
+            </g>
+            <!-- Contador de pozo -->
+            <g filter="url(#sombraCC)">
+              <rect x="520" y="210" width="170" height="260" rx="10" fill="url(#plomoCC)" stroke="#73868d" stroke-width="3"/>
+              <rect id="c_pozoCont" x="570" y="226" width="70" height="120" rx="6" fill="#17262c" stroke="#54676f" stroke-width="2"/>
+              <rect x="534" y="360" width="142" height="52" rx="7" fill="#0e1a12" stroke="#3c5a44" stroke-width="2"/>
+              <text id="c_lcd" x="666" y="388" text-anchor="end" fill="var(--lcd)" font-size="19" font-weight="600" class="lcd-css" style="text-shadow:0 0 7px rgba(110,225,135,.55)">0</text>
+              <text id="c_lcdSub" x="666" y="404" text-anchor="end" fill="#57a468" font-size="10" class="lcd-css">cpm</text>
+              <circle id="c_estable" cx="546" cy="400" r="4" fill="#2a343a"/>
+              <text x="534" y="452" fill="#899fa6" font-size="10" font-family="Inter,Segoe UI,sans-serif">Contador de pozo NaI(Tl)</text>
+            </g>
+            <!-- Tira cromatográfica (arrastrable) -->
+            <g id="c_tira" style="cursor:grab">
+              <rect x="0" y="0" width="30" height="210" rx="2" fill="#f4f1ea" stroke="#c9c4b8" stroke-width="1.2"/>
+              <rect id="c_mojado" x="1" y="210" width="28" height="0" fill="#ded9cc" opacity=".55"/>
+              <line x1="3" y1="20" x2="27" y2="20" stroke="#8a867c" stroke-width="1" stroke-dasharray="3 2"/>
+              <line x1="3" y1="175" x2="27" y2="175" stroke="#8a867c" stroke-width="1.2"/>
+              <text x="4" y="16" fill="#8a867c" font-size="7" font-family="Inter,Segoe UI,sans-serif">frente</text>
+              <text x="4" y="186" fill="#8a867c" font-size="7" font-family="Inter,Segoe UI,sans-serif">origen</text>
+              <circle id="c_manchaOrigen" cx="15" cy="175" r="0" fill="url(#manchaTc)"/>
+              <circle id="c_manchaFrente" cx="15" cy="175" r="0" fill="url(#manchaTc)"/>
+              <line id="c_lineaCorte" x1="0" y1="97.5" x2="30" y2="97.5" stroke="#c23b2e" stroke-width="1.4" stroke-dasharray="4 3" opacity="0"/>
+            </g>
+            <!-- Mitades tras el corte -->
+            <g id="c_mitadInf" style="cursor:grab" opacity="0">
+              <rect x="0" y="0" width="30" height="112" rx="2" fill="#f0ede4" stroke="#c9c4b8" stroke-width="1.2"/>
+              <line x1="3" y1="77" x2="27" y2="77" stroke="#8a867c" stroke-width="1.2"/>
+              <circle id="c_glowInf" cx="15" cy="77" r="12" fill="url(#manchaTc)" opacity=".8"/>
+              <text x="3" y="104" fill="#8a867c" font-size="7.5" font-family="Inter,Segoe UI,sans-serif">mitad origen</text>
+            </g>
+            <g id="c_mitadSup" style="cursor:grab" opacity="0">
+              <rect x="0" y="0" width="30" height="98" rx="2" fill="#f0ede4" stroke="#c9c4b8" stroke-width="1.2"/>
+              <line x1="3" y1="20" x2="27" y2="20" stroke="#8a867c" stroke-width="1" stroke-dasharray="3 2"/>
+              <circle id="c_glowSup" cx="15" cy="26" r="12" fill="url(#manchaTc)" opacity=".8"/>
+              <text x="3" y="90" fill="#8a867c" font-size="7.5" font-family="Inter,Segoe UI,sans-serif">mitad frente</text>
+            </g>
+            <!-- Micropipeta (arrastrable): va al final para que la mano
+                 quede siempre por delante del papel al sembrar -->
+            <g id="c_pip" style="cursor:grab">
+              <rect x="-6" y="-84" width="12" height="66" rx="4" fill="#dfe7ea" stroke="#8d99a1" stroke-width="1.4"/>
+              <path d="M -6 -18 L -1.6 8 L 1.6 8 L 6 -18 Z" fill="#cfd8dc" stroke="#8d99a1"/>
+              <line x1="0" y1="8" x2="0" y2="30" stroke="#9aa0a6" stroke-width="1.8"/>
+              <rect x="-8" y="-96" width="16" height="12" rx="4" fill="#c23b2e" stroke="#7e2118"/>
+              <text x="-34" y="48" fill="#899fa6" font-size="9" font-family="Inter,Segoe UI,sans-serif">capilar de siembra</text>
+            </g>
+          </svg>
+        </div>
+        <div class="controls-bar">
+          <button class="btn primario" id="c_sembrarBtn" type="button" disabled>Sembrar la gota</button>
+          <button class="btn" id="c_cortarBtn" type="button" disabled>✂ Cortar en Rf 0,5</button>
+          <button class="btn primario" id="c_regBtn" type="button" disabled>Registrar cuentas</button>
+          <div class="nota" id="c_nota">Lleva el capilar hasta la línea de origen de la tira.</div>
+        </div>
+      </section>
+      <div class="right-col">
+        <section class="card">
+          <div class="card-head"><div><h2>Procedimiento</h2><p>ITLC · fase móvil: solución salina</p></div></div>
+          <ul class="pasos">
+            <li id="c_paso1">Sembrar una gota del eluido en el origen de la tira.</li>
+            <li id="c_paso2">Colocar la tira en la cubeta y dejar subir el frente hasta la marca.</li>
+            <li id="c_paso3">Retirar la tira y cortarla en Rf 0,5.</li>
+            <li id="c_paso4">Contar cada mitad en el contador de pozo.</li>
+          </ul>
+        </section>
+        <section class="card">
+          <div class="card-head"><div><h2>Cuentas del contador de pozo</h2><p>Registra las dos mitades e intenta calcular la pureza antes de abrir el desplegable</p></div></div>
+          <div class="lecturas">
+            <div class="lect-row"><span>Cuentas mitad del origen (TcO₂, coloides)</span><b id="c_valInf" class="pend">sin registrar</b></div>
+            <div class="lect-row"><span>Cuentas mitad del frente (⁹⁹ᵐTcO₄⁻)</span><b id="c_valSup" class="pend">sin registrar</b></div>
+          </div>
+          <details class="desplegable">
+            <summary>Ver cálculo y criterio de aceptación</summary>
+            <div class="details-body">
+              <p class="formula">% ⁹⁹ᵐTcO₄⁻ = frente / (frente + origen) × 100</p>
+              <div class="lecturas" style="padding:10px 0 0">
+                <div class="lect-row res"><span>Pureza radioquímica</span><b id="c_valP" class="pend">—</b></div>
+                <div class="lect-row limite"><span>Límite de aceptación</span><b>≥ 95 % como ⁹⁹ᵐTcO₄⁻</b></div>
+              </div>
+            </div>
+          </details>
+        </section>
+        <section class="card">
+          <div class="card-head"><div><h2>Veredicto · pureza radioquímica</h2><p>Decide con las cuentas y tu propio cálculo</p></div></div>
+          <details class="desplegable">
+            <summary>Ver criterio de aceptación</summary>
+            <div class="details-body"><p>Al menos el 95 % de la actividad debe estar como ⁹⁹ᵐTcO₄⁻; es decir, las impurezas radioquímicas deben ser menores al 5 %. Bajo ese umbral de pureza, el eluido se desecha.</p></div>
+          </details>
+          <div class="veredicto">
+            <button class="v-ok" id="c_vOk" type="button" disabled>CONFORME<br><small>apruebo y libero el eluido</small></button>
+            <button class="v-mal" id="c_vMal" type="button" disabled>NO CONFORME<br><small>rechazo y desecho el eluido</small></button>
+          </div>
+          <div class="feedback" id="c_feedback"></div>
+        </section>
+        <details>
+          <summary>Fundamento de la prueba</summary>
+          <div class="details-body">
+            <p>El <sup>99m</sup>Tc del eluido debe estar como <sup>99m</sup>TcO₄⁻ (pertecnectato); cualquier otra forma química (Tc reducido/hidrolizado, TcO₂·xH₂O coloidal) es impureza radioquímica. El límite de impurezas es &lt; 5 %.</p>
+            <p>En cromatografía con solución salina, el ⁹⁹ᵐTcO₄⁻ migra con el frente del disolvente (Rf ≈ 1) y las especies hidrolizadas quedan en el origen (Rf ≈ 0). Si la tira se retira antes de que el frente llegue a la marca, la separación queda incompleta y el resultado se sesga.</p>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- ══════════════ INFORME ══════════════ -->
+    <div class="vista" id="vista_informe" hidden>
+      <section class="card">
+        <div class="card-head">
+          <div><h2>Informe del lote</h2><p id="i_sub">Resumen de las cinco pruebas y de tus veredictos</p></div>
+          <button class="btn" id="i_nuevoBtn" type="button">⟳ Nuevo lote</button>
+        </div>
+        <div class="informe-wrap">
+          <table class="informe-tabla">
+            <thead><tr><th>Ensayo</th><th>Resultado medido</th><th>Límite</th><th>Tu veredicto</th><th>Estado real</th><th>Evaluación</th></tr></thead>
+            <tbody id="i_cuerpo"></tbody>
+          </table>
+        </div>
+        <div class="informe-resumen" id="i_resumen">Realiza las cinco pruebas y emite los veredictos para cerrar el informe.</div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    (() => {
+      'use strict';
+
+      /* ── Utilidades compartidas ────────────────────────────────── */
+      const $ = id => document.getElementById(id);
+      const nf = (v, d = 1) => new Intl.NumberFormat('es-CL', { maximumFractionDigits: d, minimumFractionDigits: d }).format(v);
+      const nfe = v => new Intl.NumberFormat('es-CL').format(Math.round(v));
+      const azar = (a, b) => a + Math.random() * (b - a);
+      const clamp01 = v => Math.max(0, Math.min(1, v));
+      const noop = () => {};
+
+      function puntoSVG(svg, ev) {
+        const p = svg.createSVGPoint();
+        p.x = ev.clientX; p.y = ev.clientY;
+        return p.matrixTransform(svg.getScreenCTM().inverse());
+      }
+      function aplicar(el, obj) {
+        el.setAttribute('transform', `translate(${obj.x} ${obj.y})`);
+      }
+      // Arrastre genérico con detección de clic (menos de 6 px de recorrido).
+      function arrastrable(el, obj, opts = {}) {
+        el.addEventListener('pointerdown', ev => {
+          if (opts.puede && !opts.puede()) return;
+          ev.preventDefault(); ev.stopPropagation();
+          const svg = el.ownerSVGElement;
+          const p0 = puntoSVG(svg, ev);
+          const ox = obj.x - p0.x, oy = obj.y - p0.y;
+          let recorrido = 0, ultimo = p0;
+          el.setPointerCapture(ev.pointerId);
+          const mover = e => {
+            const p = puntoSVG(svg, e);
+            recorrido += Math.hypot(p.x - ultimo.x, p.y - ultimo.y); ultimo = p;
+            obj.x = p.x + ox; obj.y = p.y + oy;
+            if (opts.limites) {
+              obj.x = Math.max(opts.limites[0], Math.min(opts.limites[2], obj.x));
+              obj.y = Math.max(opts.limites[1], Math.min(opts.limites[3], obj.y));
+            }
+            (opts.alMover || noop)(obj, p);
+            aplicar(el, obj);
+          };
+          const fin = () => {
+            el.removeEventListener('pointermove', mover);
+            el.removeEventListener('pointerup', fin);
+            el.removeEventListener('pointercancel', fin);
+            if (recorrido < 6 && opts.alClic) opts.alClic(); else (opts.alSoltar || noop)(obj);
+            aplicar(el, obj);
+          };
+          el.addEventListener('pointermove', mover);
+          el.addEventListener('pointerup', fin);
+          el.addEventListener('pointercancel', fin);
+          (opts.alAgarrar || noop)(obj);
+        });
+      }
+      const hecho = id => $(id).classList.add('hecho');
+      const esHecho = id => $(id).classList.contains('hecho');
+
+      // Lectura de LCD con suavizado exponencial y ruido (mecánica portada del
+      // simulador de la pinza: se acerca al objetivo y tiembla menos al llegar).
+      function lcdSuave(estado, objetivo, dt) {
+        estado.v += (objetivo - estado.v) * Math.min(1, dt * 3.0);
+        const cerca = Math.abs(estado.v - objetivo) <= Math.max(.02, objetivo * .012);
+        const ruido = (Math.random() - .5) * (cerca ? .012 : .1) * Math.max(.6, objetivo * .02);
+        return { valor: Math.max(0, estado.v + ruido), estable: cerca };
+      }
+
+      /* ── El lote: verdades ocultas que las pruebas deben descubrir ── */
+      const falla = p => Math.random() < p;
+      // Sesgo deliberado: con estas probabilidades ~9 de cada 10 lotes fallan
+      // al menos una prueba, y cada ensayo falla con frecuencia suficiente
+      // para que "conforme" nunca sea respuesta segura. Ajustar aquí.
+      const PROB_FALLA = { particulas: .30, tinte: .12, ph: .35, mo: .40, al: .35, rq: .40 };
+      const hoy = new Date();
+      const lote = {
+        id: `TC-${String(hoy.getFullYear()).slice(2)}${String(hoy.getMonth() + 1).padStart(2, '0')}${String(hoy.getDate()).padStart(2, '0')}-${String(Math.floor(azar(1, 99))).padStart(2, '0')}`,
+        volumen: Math.round(azar(4, 10) * 2) / 2,
+        tcMci: Math.round(azar(180, 750)),
+        particulas: falla(PROB_FALLA.particulas) ? Math.floor(azar(6, 14)) : 0,
+        pH: 0, moRatio: 0, alUgMl: 0, purezaRQ: 0, tinte: false,
+        tests: {}
+      };
+      lote.tinte = !lote.particulas && falla(PROB_FALLA.tinte);
+      lote.pH = falla(PROB_FALLA.ph) ? (falla(.5) ? azar(2.2, 3.6) : azar(8.4, 9.6)) : azar(4.6, 7.4);
+      lote.moRatio = falla(PROB_FALLA.mo) ? azar(.17, .6) : azar(.02, .11);
+      lote.alUgMl = falla(PROB_FALLA.al) ? azar(12, 22) : azar(2, 8);
+      lote.purezaRQ = falla(PROB_FALLA.rq) ? azar(88, 94.6) : azar(96, 99.6);
+      lote.moUCi = lote.moRatio * lote.tcMci;
+
+      const TESTS = {
+        aspecto: { nombre: 'Transparencia', limite: 'límpido, incoloro, sin partículas' },
+        ph: { nombre: 'Determinación del pH', limite: '4,0 – 8,0' },
+        radionucleidica: { nombre: 'Pureza radionucleídica (⁹⁹Mo)', limite: '≤ 0,15 µCi/mCi' },
+        quimica: { nombre: 'Pureza química (Al³⁺)', limite: '≤ 10 µg/mL' },
+        radioquimica: { nombre: 'Pureza radioquímica (⁹⁹ᵐTcO₄⁻)', limite: '≥ 95 %' }
+      };
+      lote.tests.aspecto = { conformeReal: !lote.particulas && !lote.tinte,
+        detalleReal: lote.particulas ? `el eluido contiene ${lote.particulas} partículas visibles en suspensión` : lote.tinte ? 'el eluido presenta una leve coloración amarillenta' : 'el eluido es límpido, incoloro y sin partículas' };
+      lote.tests.ph = { conformeReal: lote.pH >= 4 && lote.pH <= 8, detalleReal: `el pH real del eluido es ${nf(lote.pH, 1)}` };
+      lote.tests.radionucleidica = { conformeReal: lote.moRatio <= .15, detalleReal: `la razón real es ${nf(lote.moRatio, 3)} µCi de ⁹⁹Mo por mCi de ⁹⁹ᵐTc` };
+      lote.tests.quimica = { conformeReal: lote.alUgMl <= 10, detalleReal: `la concentración real de Al³⁺ es ${nf(lote.alUgMl, 1)} µg/mL` };
+      lote.tests.radioquimica = { conformeReal: lote.purezaRQ >= 95, detalleReal: `la pureza radioquímica real es ${nf(lote.purezaRQ, 1)} % de ⁹⁹ᵐTcO₄⁻` };
+      Object.values(lote.tests).forEach(t => { t.realizado = false; t.medido = 'no realizado'; t.veredicto = null; t.correcto = null; });
+
+      $('loteId').textContent = lote.id;
+      $('loteAct').textContent = `${nf(lote.tcMci, 0)} mCi · ${nf(lote.tcMci * .037, 2)} GBq`;
+      $('loteVol').textContent = `${nf(lote.volumen, 1)} mL`;
+      $('nuevoLoteBtn').addEventListener('click', () => location.reload());
+
+      function actualizarAvance() {
+        const emitidos = Object.values(lote.tests).filter(t => t.veredicto !== null);
+        const aciertos = emitidos.filter(t => t.correcto).length;
+        $('loteAvance').textContent = `${aciertos} / ${emitidos.length} veredictos acertados`;
+        actualizarInforme();
+      }
+
+      function emitirVeredicto(clave, apruebaAlumno, fbEl, botones, medido) {
+        const t = lote.tests[clave];
+        if (t.veredicto !== null) return;
+        t.veredicto = apruebaAlumno; t.realizado = true;
+        if (medido) t.medido = medido;
+        t.correcto = apruebaAlumno === t.conformeReal;
+        botones.forEach(b => b.disabled = true);
+        fbEl.className = 'feedback ' + (t.correcto ? 'ok' : 'mal');
+        fbEl.innerHTML = (t.correcto
+          ? `<b>✔ Veredicto correcto.</b> Declaraste el lote ${apruebaAlumno ? 'conforme' : 'no conforme'} y ${t.detalleReal}.`
+          : `<b>✘ Veredicto incorrecto.</b> Declaraste el lote ${apruebaAlumno ? 'conforme' : 'no conforme'}, pero ${t.detalleReal}.`)
+          + (t.conformeReal ? '' : ' El eluido debe desecharse siguiendo el procedimiento de residuos radiactivos.');
+        const tick = $('tab_' + clave);
+        tick.textContent = t.correcto ? '✓' : '✗';
+        tick.classList.toggle('mal', !t.correcto);
+        actualizarAvance();
+      }
+
+      /* ── Arte compartido: vial de eluido con nivel de líquido ────── */
+      // Geometría tomada de assets/assets-gVial.svg; los id dinámicos van con
+      // prefijo para poder repetir el vial en varias escenas.
+      function artVial(pre, linea1, linea2) {
+        return `
+        <g clip-path="url(#clipIntVialCC)">
+          <rect id="${pre}_liq" x="150" y="372" width="600" height="600" fill="url(#liquidoGrad)" opacity=".85"/>
+          <rect id="${pre}_tinte" x="150" y="372" width="600" height="600" fill="#d8c34a" opacity="0"/>
+          <line id="${pre}_sup" x1="150" y1="372" x2="750" y2="372" stroke="var(--liquido-oscuro)" stroke-width="2.5" opacity=".9"/>
+          <g id="${pre}_partG"></g>
+        </g>
+        <path d="M 405 251 L 405 403 Q 405 421 423 421 L 477 421 Q 495 421 495 403 L 495 251 C 495 230 483 221 476 213 L 476 194 L 424 194 L 424 213 C 417 221 405 230 405 251 Z"
+              fill="url(#vidrio)" stroke="rgba(140,160,170,.75)" stroke-width="1.6"/>
+        <line x1="418" y1="268" x2="418" y2="400" stroke="rgba(255,255,255,.75)" stroke-width="3" stroke-linecap="round"/>
+        <line x1="486" y1="276" x2="486" y2="392" stroke="rgba(255,255,255,.30)" stroke-width="1.6" stroke-linecap="round"/>
+        <line x1="422" y1="412" x2="478" y2="412" stroke="rgba(255,255,255,.28)" stroke-width="1.4"/>
+        <rect x="420" y="189" width="60" height="9" rx="3.5" fill="url(#vidrio)" stroke="rgba(140,160,170,.6)" stroke-width="1.1"/>
+        <rect x="419" y="171" width="62" height="26" rx="3" fill="url(#aluminio)" stroke="rgba(60,65,70,.65)" stroke-width="1.1"/>
+        <g stroke="rgba(255,255,255,.22)" stroke-width="1">
+          <line x1="428" y1="175" x2="428" y2="194"/><line x1="437" y1="175" x2="437" y2="194"/>
+          <line x1="463" y1="175" x2="463" y2="194"/><line x1="472" y1="175" x2="472" y2="194"/>
+        </g>
+        <rect x="433" y="161" width="34" height="12" rx="3" fill="url(#aluminio)" stroke="rgba(60,65,70,.6)" stroke-width="1"/>
+        <rect x="438" y="157" width="24" height="8" rx="1.5" fill="var(--septo)" stroke="rgba(40,20,15,.6)" stroke-width=".8"/>
+        <rect x="409" y="300" width="82" height="66" fill="rgba(255,255,255,.85)" stroke="rgba(90,95,100,.4)" stroke-width=".7"/>
+        <text x="450" y="322" text-anchor="middle" font-size="12" font-weight="600" fill="#3f3d38" font-family="Inter,Segoe UI,sans-serif">${linea1}</text>
+        <text x="450" y="340" text-anchor="middle" font-size="10" fill="#6b6960" font-family="Inter,Segoe UI,sans-serif">${linea2}</text>`;
+      }
+      // Nivel del líquido en coordenadas del dibujo (cuerpo: y 245–415 ≙ 20 mL).
+      function nivelVial(vol) { return 415 - 170 * clamp01(vol / 20); }
+      function pintarNivel(pre, vol, tinte) {
+        const y = nivelVial(vol);
+        $(`${pre}_liq`).setAttribute('y', y);
+        $(`${pre}_tinte`).setAttribute('y', y);
+        $(`${pre}_tinte`).setAttribute('opacity', tinte ? .34 : 0);
+        $(`${pre}_sup`).setAttribute('y1', y); $(`${pre}_sup`).setAttribute('y2', y);
+      }
+
+      const PINTORES = {};
+      let vistaActiva = 'aspecto';
+      document.querySelectorAll('#tabs button').forEach(b => b.addEventListener('click', () => {
+        vistaActiva = b.dataset.vista;
+        document.querySelectorAll('#tabs button').forEach(x => x.classList.toggle('active', x === b));
+        ['aspecto', 'ph', 'radionucleidica', 'quimica', 'radioquimica', 'informe'].forEach(v => $('vista_' + v).hidden = v !== vistaActiva);
+      }));
+
+      /* ══════════ 1 · TRANSPARENCIA ══════════ */
+      (() => {
+        $('t_vialArt').innerHTML = artVial('t', 'Eluido', '⁹⁹ᵐTcO₄Na');
+        pintarNivel('t', lote.volumen, lote.tinte);
+        const grupo = $('t_grupo');
+        const pos = { x: 520, y: 300 };
+        let lamp = false, agitaHasta = 0, particulasG = [];
+        const nivelY = nivelVial(lote.volumen);
+
+        // Partículas dentro de la cavidad (coordenadas del dibujo del vial).
+        for (let i = 0; i < lote.particulas; i++) {
+          const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          const dato = { cx: azar(418, 482), fase: azar(0, Math.PI * 2), amp: azar(8, 22), asiento: azar(0, 1), reposo: 1 };
+          c.setAttribute('r', azar(1.5, 2.6)); c.setAttribute('fill', '#33424b');
+          $('t_partG').appendChild(c); particulasG.push({ el: c, d: dato });
+        }
+
+        arrastrable(grupo, pos, { limites: [70, 190, 660, 430], alMover: actualizarNota });
+        aplicar(grupo, pos);
+
+        function enLuz() { return pos.x > 95 && pos.x < 268 && pos.y > 150 && pos.y < 400; }
+        function actualizarNota() {
+          const n = $('t_nota');
+          if (!lamp) { n.className = 'nota'; n.textContent = 'Enciende la caja de luz para inspeccionar.'; return; }
+          if (!enLuz()) { n.className = 'nota'; n.textContent = 'Acerca el vial a la pantalla iluminada.'; return; }
+          n.className = 'nota activa';
+          n.textContent = 'Observando al trasluz: gira alrededor de la imagen y busca partículas o coloración.';
+        }
+
+        $('t_lampBtn').addEventListener('click', () => {
+          lamp = !lamp;
+          $('t_lampBtn').textContent = lamp ? '💡 Apagar la caja de luz' : '💡 Encender la caja de luz';
+          $('t_brillo').setAttribute('opacity', lamp ? .92 : 0);
+          $('t_piloto').setAttribute('fill', lamp ? '#7fe08a' : '#2a343a');
+          if (lamp) hecho('t_paso1');
+          actualizarNota();
+        });
+        $('t_agitarBtn').addEventListener('click', () => {
+          agitaHasta = performance.now() + 3800;
+          particulasG.forEach(p => { p.d.reposo = 0; });
+          hecho('t_paso2');
+          actualizarNota();
+        });
+
+        PINTORES.aspecto = (now, dt) => {
+          const agitando = now < agitaHasta;
+          const visibles = lamp && enLuz();
+          if (visibles && esHecho('t_paso2')) hecho('t_paso3');
+          particulasG.forEach(({ el, d }) => {
+            if (!agitando) d.reposo = Math.min(1, d.reposo + dt / 5);
+            const flote = 1 - d.reposo;
+            const yBase = 411 - d.asiento * 3 - flote * (411 - nivelY - 10) * (.35 + d.asiento * .6);
+            const x = d.cx + Math.sin(now / 340 + d.fase) * d.amp * flote + Math.sin(now / 900 + d.fase) * 1.2;
+            const y = yBase + Math.cos(now / 300 + d.fase * 2) * 7 * flote;
+            el.setAttribute('cx', Math.max(414, Math.min(486, x)));
+            el.setAttribute('cy', Math.max(nivelY + 6, Math.min(411, y)));
+            el.style.opacity = visibles ? .92 : .12;
+          });
+          const listo = esHecho('t_paso1') && esHecho('t_paso2') && esHecho('t_paso3');
+          $('t_vOk').disabled = $('t_vMal').disabled = !listo || lote.tests.aspecto.veredicto !== null;
+        };
+
+        const medido = () => lote.particulas ? 'partículas en suspensión' : lote.tinte ? 'leve coloración amarillenta' : 'límpido e incoloro';
+        $('t_vOk').addEventListener('click', () => emitirVeredicto('aspecto', true, $('t_feedback'), [$('t_vOk'), $('t_vMal')], medido()));
+        $('t_vMal').addEventListener('click', () => emitirVeredicto('aspecto', false, $('t_feedback'), [$('t_vOk'), $('t_vMal')], medido()));
+      })();
+
+      /* ══════════ 2 · pH ══════════ */
+      const PH_STOPS = [[2, 198, 47, 47], [3, 224, 102, 47], [4, 239, 161, 58], [5, 242, 200, 75], [6, 207, 210, 74], [7, 127, 191, 84], [8, 63, 174, 125], [9, 59, 143, 176], [10, 74, 95, 174]];
+      function colorPH(v) {
+        v = Math.max(2, Math.min(10, v));
+        let i = 0; while (i < PH_STOPS.length - 2 && PH_STOPS[i + 1][0] <= v) i++;
+        const a = PH_STOPS[i], b = PH_STOPS[i + 1], t = (v - a[0]) / (b[0] - a[0]);
+        const c = k => Math.round(a[k] + (b[k] - a[k]) * t);
+        return `rgb(${c(1)},${c(2)},${c(3)})`;
+      }
+
+      (() => {
+        $('p_vialG').innerHTML = artVial('pv', 'Eluido', '⁹⁹ᵐTcO₄Na');
+        pintarNivel('pv', lote.volumen, lote.tinte);
+        // Jeringa de 1 mL: 110 unidades de recorrido ≙ 1 mL (11 por décima).
+        $('p_jer').innerHTML = `
+          <rect x="-14" y="-8" width="28" height="8" rx="3" fill="#d6dbdf" stroke="rgba(90,96,102,.6)"/>
+          <rect x="-9" y="0" width="18" height="110" rx="3" fill="url(#barril)" stroke="rgba(70,76,82,.65)" stroke-width="1.2"/>
+          <rect id="p_liqJer" x="-8" y="110" width="16" height="0" fill="url(#liquidoGrad)" opacity=".85"/>
+          <g id="p_grad" stroke="rgba(200,215,222,.8)" stroke-width="1" font-size="7.5" fill="#c8d8de" font-family="Inter,Segoe UI,sans-serif"></g>
+          <path d="M -5 110 L 5 110 L 1.5 122 L -1.5 122 Z" fill="#d6dbdf" stroke="rgba(90,96,102,.6)"/>
+          <line x1="0" y1="122" x2="0" y2="152" stroke="#9aa0a6" stroke-width="2"/>
+          <line x1="0" y1="122" x2="0" y2="152" stroke="rgba(255,255,255,.6)" stroke-width=".7"/>
+          <g id="p_emboloG">
+            <rect x="-8" y="104" width="16" height="7" rx="1.5" fill="#4a4f55"/>
+            <rect x="-2" y="-6" width="4" height="112" fill="#c2c7cc" stroke="rgba(90,96,102,.5)" stroke-width=".5"/>
+            <rect x="-11" y="-14" width="22" height="8" rx="4" fill="#c2c7cc" stroke="rgba(90,96,102,.6)"/>
+          </g>
+          <rect id="p_hitEmbolo" x="-17" y="-22" width="34" height="18" fill="transparent" style="cursor:ns-resize"/>
+          <text x="14" y="8" fill="#8ea3ab" font-size="8" font-family="Inter,Segoe UI,sans-serif">1 mL</text>`;
+        const grad = $('p_grad');
+        let marcas = '';
+        for (let k = 1; k <= 10; k++) {
+          const y = 110 - k * 11;
+          marcas += `<line x1="-9" y1="${y}" x2="${k % 5 ? -3 : 0}" y2="${y}"/>`;
+          if (k === 5) marcas += `<text x="3" y="${y + 2.5}">0,5</text>`;
+          if (k === 10) marcas += `<text x="3" y="${y + 2.5}">1,0</text>`;
+        }
+        grad.innerHTML = marcas;
+
+        const jer = { x: 560, y: 305 };
+        const st = { insertada: false, vol: 0, mojado: 0, color: false, lectura: null, gotaAnim: null, avisoVol: false };
+        const SEPTO = { x: 150, y: 206 };
+        const INSERT = { x: 150, y: 88 };
+        const tip = () => ({ x: jer.x, y: jer.y + 152 });
+
+        function pintarJeringa() {
+          const cara = 110 - st.vol * 110;
+          $('p_liqJer').setAttribute('y', cara);
+          $('p_liqJer').setAttribute('height', 110 - cara);
+          $('p_emboloG').setAttribute('transform', `translate(0 ${-st.vol * 110})`);
+          $('p_hitEmbolo').setAttribute('y', -22 - st.vol * 110);
+          $('p_volTxt').textContent = `${nf(st.vol, 2)} mL`;
+        }
+
+        function sobreTira() { const t = tip(); return t.x > 368 && t.x < 432 && t.y > 236 && t.y < 298 && !st.insertada; }
+        function actualizarNotaP(txt, clase) {
+          const n = $('p_nota');
+          if (txt) { n.textContent = txt; n.className = 'nota ' + (clase || ''); return; }
+          if (!st.insertada && st.vol < .02) { n.textContent = 'Lleva la jeringa hasta el septo del vial para cargar la muestra.'; n.className = 'nota'; }
+          else if (st.insertada) { n.textContent = 'Tira del émbolo hasta ≈ 0,1 mL y luego retira la jeringa hacia arriba.'; n.className = 'nota activa'; }
+          else if (sobreTira()) { n.textContent = 'Suelta gotas hasta humedecer totalmente la tira.'; n.className = 'nota activa'; }
+          else { n.textContent = 'Coloca la punta de la aguja sobre la tira reactiva.'; n.className = 'nota'; }
+        }
+
+        arrastrable($('p_jer'), jer, {
+          limites: [40, 30, 690, 320],
+          alAgarrar: () => { if (st.insertada) st.insertada = false; },
+          alMover: () => { $('p_gotaBtn').disabled = !(sobreTira() && st.vol >= .02); actualizarNotaP(); },
+          alSoltar: () => {
+            const t = tip();
+            if (!st.insertada && Math.hypot(t.x - SEPTO.x, t.y - SEPTO.y) < 48) {
+              st.insertada = true; jer.x = INSERT.x; jer.y = INSERT.y;
+              aplicar($('p_jer'), jer); hecho('p_paso1');
+            }
+            $('p_gotaBtn').disabled = !(sobreTira() && st.vol >= .02);
+            actualizarNotaP();
+          }
+        });
+        aplicar($('p_jer'), jer);
+
+        // El émbolo se arrastra aparte: pointerdown propio con stopPropagation.
+        $('p_hitEmbolo').addEventListener('pointerdown', ev => {
+          ev.preventDefault(); ev.stopPropagation();
+          const svg = $('p_svg');
+          const p0 = puntoSVG(svg, ev);
+          const v0 = st.vol;
+          $('p_hitEmbolo').setPointerCapture(ev.pointerId);
+          const mover = e => {
+            if (!st.insertada) return;
+            const p = puntoSVG(svg, e);
+            st.vol = clamp01(v0 + (p0.y - p.y) / 110);
+            if (st.vol > .35 && !st.avisoVol) { st.avisoVol = true; actualizarNotaP('Con ≈ 0,1 mL basta: no gastes más eluido del necesario.', 'aviso'); }
+            if (st.vol >= .05) hecho('p_paso2');
+            pintarJeringa();
+          };
+          const fin = () => {
+            $('p_hitEmbolo').removeEventListener('pointermove', mover);
+            $('p_hitEmbolo').removeEventListener('pointerup', fin);
+            $('p_hitEmbolo').removeEventListener('pointercancel', fin);
+          };
+          $('p_hitEmbolo').addEventListener('pointermove', mover);
+          $('p_hitEmbolo').addEventListener('pointerup', fin);
+          $('p_hitEmbolo').addEventListener('pointercancel', fin);
+        });
+
+        $('p_gotaBtn').addEventListener('click', () => {
+          if (!(sobreTira() && st.vol >= .02) || st.gotaAnim) return;
+          const t = tip();
+          st.gotaAnim = { x: t.x, y0: t.y, t0: performance.now() };
+          st.vol = Math.max(0, st.vol - .02);
+          pintarJeringa();
+        });
+
+        // Escala patrón 2–10.
+        for (let k = 2; k <= 10; k++) {
+          const b = document.createElement('button');
+          b.type = 'button'; b.disabled = true; b.textContent = k;
+          b.style.background = colorPH(k);
+          b.dataset.ph = k;
+          b.addEventListener('click', () => {
+            st.lectura = k;
+            document.querySelectorAll('#p_chart button').forEach(x => x.classList.toggle('sel', x === b));
+            $('p_lecturaTxt').textContent = `Tu lectura: pH ≈ ${k}. Ahora decide si el eluido cumple el criterio de aceptación.`;
+            hecho('p_paso4');
+            const bloqueado = lote.tests.ph.veredicto !== null;
+            $('p_vOk').disabled = $('p_vMal').disabled = bloqueado;
+          });
+          $('p_chart').appendChild(b);
+        }
+
+        PINTORES.ph = now => {
+          if (st.gotaAnim) {
+            const g = $('p_gota');
+            const f = Math.min(1, (now - st.gotaAnim.t0) / 340);
+            g.setAttribute('opacity', 1);
+            g.setAttribute('cx', st.gotaAnim.x);
+            g.setAttribute('cy', st.gotaAnim.y0 + (300 - st.gotaAnim.y0) * f * f);
+            if (f >= 1) {
+              g.setAttribute('opacity', 0);
+              st.gotaAnim = null;
+              st.mojado = Math.min(.08, st.mojado + .02);
+              const frac = clamp01(st.mojado / .06);
+              $('p_tiraMojada').setAttribute('height', 126 * frac);
+              if (st.mojado >= .06 && !st.color) {
+                st.color = true; hecho('p_paso3');
+                const zona = $('p_tiraColor');
+                zona.style.transition = 'opacity 1.4s ease';
+                zona.setAttribute('fill', colorPH(lote.pH + azar(-.15, .15)));
+                requestAnimationFrame(() => { zona.style.opacity = .92; });
+                setTimeout(() => {
+                  document.querySelectorAll('#p_chart button').forEach(x => x.disabled = false);
+                  $('p_lecturaTxt').textContent = 'La tira desarrolló color: elige el patrón que más se parezca.';
+                }, 1200);
+                actualizarNotaP('Color desarrollado: compara contra el patrón colorimétrico.', 'activa');
+              }
+            }
+          }
+          $('p_gotaBtn').disabled = !(sobreTira() && st.vol >= .02) || Boolean(st.gotaAnim);
+        };
+
+        const medidoPH = () => `pH ≈ ${st.lectura} (tira colorimétrica)`;
+        $('p_vOk').addEventListener('click', () => emitirVeredicto('ph', true, $('p_feedback'), [$('p_vOk'), $('p_vMal')], medidoPH()));
+        $('p_vMal').addEventListener('click', () => emitirVeredicto('ph', false, $('p_feedback'), [$('p_vOk'), $('p_vMal')], medidoPH()));
+        pintarJeringa();
+        actualizarNotaP();
+      })();
+
+      /* ══════════ 3 · PUREZA RADIONUCLEÍDICA ══════════ */
+      (() => {
+        $('r_vialArt').setAttribute('transform', 'scale(.62) translate(-450 -421)');
+        $('r_vialArt').innerHTML = artVial('rv', 'Eluido', '⁹⁹ᵐTcO₄Na');
+        pintarNivel('rv', lote.volumen, lote.tinte);
+        const hLiq = 84 * clamp01(lote.volumen / 20);
+        $('r_canLiq').setAttribute('height', hLiq);
+        $('r_canLiq').setAttribute('y', -12 - hLiq);
+
+        const vial = { x: 120, y: 470, lugar: 'mesa' };
+        const can = { x: 280, y: 470, lugar: 'mesa', tapa: true, contiene: false };
+        const st = { canal: 'tc', A: null, B: null, lcd: { v: 0 }, notaFija: 0 };
+        const POZO = { x: 573, yVial: 332, yCan: 334 };
+        const sobrePozo = (x, y) => x > 505 && x < 645 && y > 140 && y < 370;
+
+        function pintarEstado() {
+          $('r_canVial').setAttribute('opacity', can.contiene ? 1 : 0);
+          $('r_canTapa').setAttribute('opacity', can.tapa ? 1 : 0);
+          $('r_vial').style.display = vial.lugar === 'canister' ? 'none' : '';
+          $('r_tapaBtn').textContent = can.tapa ? 'Destapar canister' : 'Tapar canister';
+          if (can.contiene && can.tapa) hecho('r_paso1');
+        }
+
+        arrastrable($('r_vial'), vial, {
+          puede: () => vial.lugar !== 'canister',
+          limites: [60, 180, 680, 480],
+          alSoltar: () => {
+            const bocaCan = { x: can.x, y: can.y - 118 };
+            if (can.lugar === 'mesa' && !can.tapa && !can.contiene &&
+                Math.hypot(vial.x - bocaCan.x, vial.y - bocaCan.y) < 60) {
+              vial.lugar = 'canister'; can.contiene = true;
+            } else if (sobrePozo(vial.x, vial.y) && can.lugar !== 'pozo') {
+              vial.lugar = 'pozo'; vial.x = POZO.x; vial.y = POZO.yVial;
+            } else {
+              vial.lugar = 'mesa'; vial.y = 470;
+              vial.x = Math.max(70, Math.min(430, vial.x));
+            }
+            aplicar($('r_vial'), vial); pintarEstado();
+          }
+        });
+        arrastrable($('r_can'), can, {
+          limites: [80, 200, 660, 480],
+          alClic: () => {
+            if (!can.tapa && can.contiene && can.lugar === 'mesa') {
+              can.contiene = false; vial.lugar = 'mesa';
+              vial.x = Math.max(80, can.x - 95); vial.y = 470;
+              aplicar($('r_vial'), vial); pintarEstado();
+            }
+          },
+          alSoltar: () => {
+            if (sobrePozo(can.x, can.y) && vial.lugar !== 'pozo') {
+              can.lugar = 'pozo'; can.x = POZO.x; can.y = POZO.yCan;
+            } else {
+              can.lugar = 'mesa'; can.y = 470;
+              can.x = Math.max(120, Math.min(440, can.x));
+            }
+            aplicar($('r_can'), can); pintarEstado();
+          }
+        });
+        aplicar($('r_vial'), vial); aplicar($('r_can'), can);
+
+        $('r_tapaBtn').addEventListener('click', () => { can.tapa = !can.tapa; pintarEstado(); });
+        function fijarCanal(c) {
+          st.canal = c;
+          $('r_canalTc').classList.toggle('activo', c === 'tc');
+          $('r_canalMo').classList.toggle('activo', c === 'mo');
+        }
+        $('r_canalTc').addEventListener('click', () => fijarCanal('tc'));
+        $('r_canalMo').addEventListener('click', () => fijarCanal('mo'));
+        fijarCanal('tc');
+
+        function objetivoLCD() {
+          const vialSolo = vial.lugar === 'pozo';
+          const canDentro = can.lugar === 'pozo';
+          if (st.canal === 'tc') {
+            if (vialSolo) return { v: lote.tcMci, u: 'mCi', valido: 'B' };
+            if (canDentro && can.contiene) return { v: lote.tcMci * .006, u: 'mCi', nota: 'Con blindaje solo llega el residuo del ⁹⁹ᵐTc: esta lectura no sirve como B.' };
+            return { v: .02, u: 'mCi' };
+          }
+          if (vialSolo) return { v: lote.tcMci * 1000 * .32, u: 'µCi', nota: 'Sin blindaje, los fotones del ⁹⁹ᵐTc invaden el canal ⁹⁹Mo: lectura sin valor.' };
+          if (canDentro && can.contiene && can.tapa) return { v: lote.moUCi * .5, u: 'µCi', valido: 'A' };
+          if (canDentro && can.contiene) return { v: lote.moUCi * .5 + lote.tcMci * 1000 * .02, u: 'µCi', nota: 'Tapa el canister: el blindaje quedó incompleto.' };
+          return { v: .02, u: 'µCi' };
+        }
+
+        PINTORES.radionucleidica = (now, dt) => {
+          const obj = objetivoLCD();
+          const lect = lcdSuave(st.lcd, obj.v, dt);
+          $('r_lcd').textContent = obj.v >= 1000 ? nfe(lect.valor) : nf(lect.valor, obj.v < 10 ? 2 : 1);
+          $('r_lcdUnidad').textContent = `${obj.u} · canal ${st.canal === 'tc' ? 'Tc-99m' : 'Mo-99'}`;
+          $('r_estable').setAttribute('fill', lect.estable && obj.v > .1 ? '#7fe08a' : '#2a343a');
+          $('r_regA').disabled = !(obj.valido === 'A' && lect.estable && st.A === null);
+          $('r_regB').disabled = !(obj.valido === 'B' && lect.estable && st.B === null);
+          const n = $('r_nota');
+          if (obj.nota) { n.textContent = obj.nota; n.className = 'nota aviso'; }
+          else if (obj.valido === 'A' && st.A === null) { n.textContent = 'Lectura A estable: regístrala.'; n.className = 'nota activa'; }
+          else if (obj.valido === 'B' && st.B === null) { n.textContent = 'Lectura B estable: regístrala.'; n.className = 'nota activa'; }
+          else if (st.A === null) { n.textContent = 'Guarda el vial en el canister destapado, tápalo y llévalo al pozo con el canal ⁹⁹Mo.'; n.className = 'nota'; }
+          else if (st.B === null) { n.textContent = 'Saca el canister, deja el vial solo en el pozo y mide con el canal ⁹⁹ᵐTc.'; n.className = 'nota'; }
+          else { n.textContent = 'Razón calculada: emite el veredicto.'; n.className = 'nota activa'; }
+        };
+
+        function revisarCalculo() {
+          if (st.A === null || st.B === null) return;
+          const razon = (st.A * 2) / st.B;
+          st.razon = razon;
+          const r = $('r_valR');
+          r.classList.remove('pend');
+          r.textContent = `${nf(razon, 3)} µCi/mCi`;
+          hecho('r_paso4');
+          const bloqueado = lote.tests.radionucleidica.veredicto !== null;
+          $('r_vOk').disabled = $('r_vMal').disabled = bloqueado;
+        }
+        $('r_regA').addEventListener('click', () => {
+          st.A = st.lcd.v;
+          const a = $('r_valA'); a.classList.remove('pend'); a.textContent = `${nf(st.A, 2)} µCi`;
+          hecho('r_paso2'); revisarCalculo();
+        });
+        $('r_regB').addEventListener('click', () => {
+          st.B = st.lcd.v;
+          const b = $('r_valB'); b.classList.remove('pend'); b.textContent = `${nf(st.B, 1)} mCi`;
+          hecho('r_paso3'); revisarCalculo();
+        });
+
+        const medidoR = () => `${nf(st.razon, 3)} µCi/mCi (A = ${nf(st.A, 2)} µCi · B = ${nf(st.B, 1)} mCi)`;
+        $('r_vOk').addEventListener('click', () => emitirVeredicto('radionucleidica', true, $('r_feedback'), [$('r_vOk'), $('r_vMal')], medidoR()));
+        $('r_vMal').addEventListener('click', () => emitirVeredicto('radionucleidica', false, $('r_feedback'), [$('r_vOk'), $('r_vMal')], medidoR()));
+        pintarEstado();
+      })();
+
+      /* ══════════ 4 · PUREZA QUÍMICA ══════════ */
+      (() => {
+        const frasco = { x: 140, y: 436 };
+        const jer = { x: 600, y: 426 };
+        const st = { patron: false, eluido: false, gota: null };
+        const alphaAl = c => Math.min(.92, c * .05);
+        const ZP = { x: 310, y: 348 }, ZE = { x: 410, y: 348 };
+
+        function soltarGota(desde, zona, alDesarrollar) {
+          st.gota = { x: zona.x, y0: desde.y - 40, t0: performance.now(), zona, alDesarrollar };
+        }
+        arrastrable($('q_frasco'), frasco, {
+          limites: [60, 120, 660, 440],
+          alSoltar: () => {
+            if (!st.patron && Math.hypot(frasco.x - ZP.x, (frasco.y - 30) - ZP.y) < 62) {
+              st.patron = true;
+              soltarGota(frasco, ZP, () => {
+                const m = $('q_manchaPatron');
+                m.style.transition = 'opacity 1.4s ease'; m.style.opacity = alphaAl(10);
+                hecho('q_paso1'); revisar();
+              });
+              frasco.x = 190; frasco.y = 436; aplicar($('q_frasco'), frasco);
+            }
+            revisarNota();
+          }
+        });
+        arrastrable($('q_jer'), jer, {
+          limites: [80, 140, 680, 440],
+          alSoltar: () => {
+            if (!st.eluido && Math.hypot(jer.x - ZE.x, (jer.y + 44) - ZE.y) < 62) {
+              st.eluido = true;
+              soltarGota(jer, ZE, () => {
+                const m = $('q_manchaEluido');
+                m.style.transition = 'opacity 1.4s ease'; m.style.opacity = alphaAl(lote.alUgMl);
+                hecho('q_paso2'); revisar();
+              });
+              jer.x = 540; jer.y = 426; aplicar($('q_jer'), jer);
+            }
+            revisarNota();
+          }
+        });
+        aplicar($('q_frasco'), frasco); aplicar($('q_jer'), jer);
+
+        function revisarNota() {
+          const n = $('q_nota');
+          if (!st.patron) { n.textContent = 'Acerca el frasco del patrón a su zona y suéltalo encima para depositar la gota.'; n.className = 'nota'; }
+          else if (!st.eluido) { n.textContent = 'Ahora deposita una gota del eluido en la zona contigua.'; n.className = 'nota activa'; }
+          else { n.textContent = 'Compara la intensidad de las dos manchas y emite el veredicto.'; n.className = 'nota activa'; }
+        }
+        function revisar() {
+          if (st.patron && st.eluido) {
+            setTimeout(() => {
+              hecho('q_paso3');
+              const bloqueado = lote.tests.quimica.veredicto !== null;
+              $('q_vOk').disabled = $('q_vMal').disabled = bloqueado;
+            }, 1600);
+          }
+        }
+        PINTORES.quimica = now => {
+          if (!st.gota) return;
+          const g = $('q_gota');
+          const f = Math.min(1, (now - st.gota.t0) / 380);
+          g.setAttribute('opacity', 1);
+          g.setAttribute('cx', st.gota.zona.x);
+          g.setAttribute('cy', st.gota.y0 + (st.gota.zona.y - st.gota.y0) * f * f);
+          if (f >= 1) { g.setAttribute('opacity', 0); st.gota.alDesarrollar(); st.gota = null; }
+        };
+        const medidoQ = () => 'comparación visual frente al patrón de 10 µg/mL';
+        $('q_vOk').addEventListener('click', () => emitirVeredicto('quimica', true, $('q_feedback'), [$('q_vOk'), $('q_vMal')], medidoQ()));
+        $('q_vMal').addEventListener('click', () => emitirVeredicto('quimica', false, $('q_feedback'), [$('q_vOk'), $('q_vMal')], medidoQ()));
+        revisarNota();
+      })();
+
+      /* ══════════ 5 · PUREZA RADIOQUÍMICA ══════════ */
+      (() => {
+        const tira = { x: 130, y: 258 };
+        const pip = { x: 60, y: 440 };
+        const inf = { x: 180, y: 356 }, sup = { x: 240, y: 372 };
+        const p = lote.purezaRQ / 100;
+        const st = { fase: 'inicio', f: 0, sep: 1, enCubeta: false, lcd: { v: 0 }, enPozo: null, cInf: null, cSup: null, regInf: null, regSup: null, pureza: null };
+        const TOTAL = Math.round(85000 + lote.tcMci * 140);
+        const sobrePozoCont = (x, y) => x > 548 && x < 660 && y > 200 && y < 360;
+        const nota = (t, c) => { const n = $('c_nota'); n.textContent = t; n.className = 'nota ' + (c || ''); };
+
+        arrastrable($('c_pip'), pip, { limites: [40, 140, 500, 445], alMover: revisarSiembra, alSoltar: revisarSiembra });
+        aplicar($('c_pip'), pip);
+        function origen() { return { x: tira.x + 15, y: tira.y + 175 }; }
+        function revisarSiembra() {
+          const o = origen(), t = { x: pip.x, y: pip.y + 30 };
+          $('c_sembrarBtn').disabled = !(st.fase === 'inicio' && Math.hypot(t.x - o.x, t.y - o.y) < 40);
+        }
+        $('c_sembrarBtn').addEventListener('click', () => {
+          if (st.fase !== 'inicio') return;
+          st.fase = 'sembrada';
+          const m = $('c_manchaOrigen');
+          m.setAttribute('r', 9); m.setAttribute('opacity', .95);
+          $('c_sembrarBtn').disabled = true;
+          pip.x = 60; pip.y = 440; aplicar($('c_pip'), pip);
+          hecho('c_paso1');
+          nota('Gota sembrada: coloca la tira dentro de la cubeta con salina.', 'activa');
+        });
+
+        arrastrable($('c_tira'), tira, {
+          puede: () => st.fase !== 'cortada',
+          limites: [60, 160, 480, 300],
+          alSoltar: () => {
+            const centro = tira.x + 15, fondo = tira.y + 210;
+            if (centro > 335 && centro < 425 && fondo > 420) {
+              tira.x = 365; tira.y = 252; st.enCubeta = true;
+              if (st.fase === 'sembrada') { st.fase = 'desarrollando'; nota('El frente de salina comienza a subir por la tira…', 'activa'); }
+            } else {
+              const estaba = st.enCubeta; st.enCubeta = false;
+              tira.x = 130; tira.y = 258;
+              if (estaba && st.fase === 'desarrollando') {
+                st.fase = 'desarrollada';
+                st.sep = clamp01(st.f / .85);
+                hecho('c_paso2');
+                if (st.sep < 1) nota('Retiraste la tira antes de la marca: la separación quedó incompleta y el resultado saldrá sesgado.', 'aviso');
+                else nota('Tira desarrollada: córtala en Rf 0,5.', 'activa');
+                $('c_lineaCorte').setAttribute('opacity', .9);
+                $('c_cortarBtn').disabled = false;
+              }
+            }
+            aplicar($('c_tira'), tira);
+            revisarSiembra();
+          }
+        });
+        aplicar($('c_tira'), tira);
+
+        $('c_cortarBtn').addEventListener('click', () => {
+          if (st.fase !== 'desarrollada') return;
+          st.fase = 'cortada';
+          $('c_tira').style.display = 'none';
+          const posFrac = .94 * st.f;
+          const fSup = clamp01((posFrac - .42) / .16);
+          st.cSup = Math.max(1, TOTAL * (p * fSup) * (1 + azar(-.01, .01)));
+          st.cInf = Math.max(1, TOTAL * (p * (1 - fSup) + (1 - p)) * (1 + azar(-.01, .01)));
+          $('c_glowInf').setAttribute('opacity', .2 + .75 * st.cInf / TOTAL);
+          $('c_glowSup').setAttribute('opacity', .2 + .75 * st.cSup / TOTAL);
+          $('c_mitadInf').setAttribute('opacity', 1);
+          $('c_mitadSup').setAttribute('opacity', 1);
+          aplicar($('c_mitadInf'), inf); aplicar($('c_mitadSup'), sup);
+          $('c_cortarBtn').disabled = true;
+          hecho('c_paso3');
+          nota('Introduce una mitad en el contador de pozo y registra sus cuentas.', 'activa');
+        });
+
+        function armarMitad(el, obj, clave, reposo) {
+          arrastrable(el, obj, {
+            puede: () => st.fase === 'cortada',
+            limites: [60, 190, 660, 400],
+            alSoltar: () => {
+              if (sobrePozoCont(obj.x + 15, obj.y + 50)) {
+                if (st.enPozo && st.enPozo !== clave) {
+                  nota('Saca la otra mitad del pozo antes de introducir esta.', 'aviso');
+                  obj.x = reposo.x; obj.y = reposo.y;
+                } else {
+                  st.enPozo = clave; obj.x = 575; obj.y = clave === 'inf' ? 226 : 234;
+                }
+              } else {
+                if (st.enPozo === clave) st.enPozo = null;
+                obj.y = reposo.y;
+              }
+              aplicar(el, obj);
+            }
+          });
+        }
+        armarMitad($('c_mitadInf'), inf, 'inf', { x: 180, y: 356 });
+        armarMitad($('c_mitadSup'), sup, 'sup', { x: 240, y: 372 });
+
+        $('c_regBtn').addEventListener('click', () => {
+          if (!st.enPozo) return;
+          const v = st.lcd.v;
+          if (st.enPozo === 'inf' && st.regInf === null) {
+            st.regInf = v;
+            const e = $('c_valInf'); e.classList.remove('pend'); e.textContent = `${nfe(v)} cpm`;
+          } else if (st.enPozo === 'sup' && st.regSup === null) {
+            st.regSup = v;
+            const e = $('c_valSup'); e.classList.remove('pend'); e.textContent = `${nfe(v)} cpm`;
+          }
+          if (st.regInf !== null && st.regSup !== null) {
+            st.pureza = st.regSup / (st.regSup + st.regInf) * 100;
+            const e = $('c_valP'); e.classList.remove('pend'); e.textContent = `${nf(st.pureza, 1)} %`;
+            hecho('c_paso4');
+            const bloqueado = lote.tests.radioquimica.veredicto !== null;
+            $('c_vOk').disabled = $('c_vMal').disabled = bloqueado;
+            nota('Pureza calculada: emite el veredicto.', 'activa');
+          } else {
+            nota('Mitad registrada: saca la pieza y cuenta la otra.', 'activa');
+          }
+        });
+
+        PINTORES.radioquimica = (now, dt) => {
+          if (st.fase === 'desarrollando' && st.enCubeta) {
+            st.f = Math.min(1, st.f + dt / 12);
+            const h = 190 * st.f;
+            $('c_mojado').setAttribute('y', 210 - h);
+            $('c_mojado').setAttribute('height', h);
+            const posFrac = .94 * st.f;
+            const mf = $('c_manchaFrente');
+            mf.setAttribute('cy', 175 - (175 - 24) * posFrac);
+            mf.setAttribute('r', 4 + 7 * st.f);
+            mf.setAttribute('opacity', .9 * p * st.f);
+            $('c_manchaOrigen').setAttribute('opacity', .25 + .7 * ((1 - p) + p * (1 - posFrac)));
+            if (st.f >= .88) nota('El frente llegó a la marca: retira la tira de la cubeta.', 'activa');
+          }
+          const objetivo = st.enPozo ? (st.enPozo === 'inf' ? st.cInf : st.cSup) : 8;
+          const lect = lcdSuave(st.lcd, objetivo, dt);
+          $('c_lcd').textContent = nfe(lect.valor);
+          $('c_estable').setAttribute('fill', lect.estable && objetivo > 20 ? '#7fe08a' : '#2a343a');
+          $('c_regBtn').disabled = !(st.fase === 'cortada' && st.enPozo && lect.estable &&
+            ((st.enPozo === 'inf' && st.regInf === null) || (st.enPozo === 'sup' && st.regSup === null)));
+        };
+
+        const medidoC = () => `${nf(st.pureza, 1)} % como ⁹⁹ᵐTcO₄⁻${st.sep < 1 ? ' (desarrollo incompleto)' : ''}`;
+        $('c_vOk').addEventListener('click', () => emitirVeredicto('radioquimica', true, $('c_feedback'), [$('c_vOk'), $('c_vMal')], medidoC()));
+        $('c_vMal').addEventListener('click', () => emitirVeredicto('radioquimica', false, $('c_feedback'), [$('c_vOk'), $('c_vMal')], medidoC()));
+        revisarSiembra();
+      })();
+
+      /* ══════════ INFORME ══════════ */
+      function actualizarInforme() {
+        const orden = ['aspecto', 'ph', 'radionucleidica', 'quimica', 'radioquimica'];
+        let html = '';
+        orden.forEach(k => {
+          const t = lote.tests[k], m = TESTS[k];
+          const oculto = t.veredicto === null;
+          html += `<tr><td><b>${m.nombre}</b></td><td>${oculto ? '—' : t.medido}</td><td>${oculto ? '· oculto ·' : m.limite}</td>
+            <td>${oculto ? 'pendiente' : t.veredicto ? 'Conforme' : 'No conforme'}</td>
+            <td>${oculto ? '· oculto hasta el veredicto ·' : t.conformeReal ? 'Conforme' : 'No conforme'}</td>
+            <td>${oculto ? '—' : t.correcto ? '<span class="ok">✓ acertado</span>' : '<span class="mal">✗ errado</span>'}</td></tr>`;
+        });
+        $('i_cuerpo').innerHTML = html;
+        const emitidos = orden.filter(k => lote.tests[k].veredicto !== null);
+        const resumen = $('i_resumen');
+        if (emitidos.length < orden.length) {
+          resumen.className = 'informe-resumen';
+          resumen.textContent = `Faltan ${orden.length - emitidos.length} pruebas por concluir. El estado real de cada ensayo se revela al emitir su veredicto.`;
+          return;
+        }
+        const aciertos = orden.filter(k => lote.tests[k].correcto).length;
+        const noConformes = orden.filter(k => !lote.tests[k].conformeReal).map(k => TESTS[k].nombre);
+        const apto = noConformes.length === 0;
+        resumen.className = 'informe-resumen ' + (apto ? 'apto' : 'noapto');
+        resumen.innerHTML = `<b>Veredictos acertados: ${aciertos} de ${orden.length}.</b> ` + (apto
+          ? 'El lote cumple todas las especificaciones del control de calidad y puede liberarse para la preparación de radiofármacos.'
+          : `El lote NO cumple: ${noConformes.join(' · ')}. El eluido debe desecharse según el procedimiento de residuos radiactivos.`);
+        $('tab_informe').textContent = '●';
+        $('tab_informe').classList.toggle('mal', !apto);
+      }
+      $('i_nuevoBtn').addEventListener('click', () => location.reload());
+
+      /* ── Bucle principal ── */
+      let ultimo = performance.now();
+      function ciclo(now) {
+        const dt = Math.min(.1, (now - ultimo) / 1000 || 0); ultimo = now;
+        (PINTORES[vistaActiva] || noop)(now, dt);
+        requestAnimationFrame(ciclo);
+      }
+      requestAnimationFrame(ciclo);
+      actualizarInforme();
+    })();
+  </script>
+</body>
+</html>
