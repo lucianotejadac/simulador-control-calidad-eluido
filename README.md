@@ -84,4 +84,4 @@ Departamento de Tecnología Médica · Facultad de Medicina · Universidad de Ch
 
 ## Licencia
 
-© 2026 Luciano Tejada Castro. Todos los derechos reservados. Obra protegida por la Ley N° 17.336 sobre Propiedad Intelectual de Chile. Cualquier reproducción, adaptación o comunicación pública distinta del uso personal requiere autorización escrita del autor.
+© 2026 Luciano Tejada Castro. Distribuido bajo licencia [MIT](LICENSE).
